@@ -5,7 +5,7 @@ Xcode Framework for the [openalpr](https://github.com/openalpr/openalpr) library
 
 Because openalpr requires Tesseract 3.03, and, as of this writing, that version has not been released yet, it means that we cannot yet use the Tesseract [CocoaPod](http://cocoapods.org).  Instead, this module includes a bash script (based on [this one](http://stackoverflow.com/questions/12849517/c-linking-problems-seems-like-i-cant-link-against-standard-c-stuff)) that will compile universal Tesseract 3.03 and Leptonica 1.71 libraries, which can then be used to compile/link openalpr for iOS.
 
-It *used to be* that getting openalpr working on iOS required that both OpenCV and Tesseract needed to be compiled with libstdc++ instead of libc++.  **This is no longer the case.** OpenCV has more recently begun to be built with libc++, so it is possible to use it across the dependencies and in openalpr. (It *does* remain a requirement that the same library is used for all dependencies and openalpr.)
+It *[used to be](https://twitter.com/shexbeer/status/466644279667204096)* that getting openalpr working on iOS required that both [OpenCV](http://opencv.org) and [Tesseract](https://code.google.com/p/tesseract-ocr/) needed to be compiled with `libstdc++` instead of `libc++`.  **This is no longer the case.** OpenCV has more recently begun to be built with `libc++`, so it is possible to use it across the dependencies and in openalpr. (It *does* remain a requirement that the same library is used for all dependencies and openalpr.)
 
 The basic steps to getting openalpr configured on XCode are:
 
@@ -17,7 +17,7 @@ The basic steps to getting openalpr configured on XCode are:
 
 - Get openalpr source:
   ```
-  git clone https://github.com/openalpr/openalpr.git openalpr
+  # git clone https://github.com/openalpr/openalpr.git openalpr
   ```
 
 - Clone this module:
