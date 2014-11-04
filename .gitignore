@@ -20,6 +20,8 @@ DerivedData
 *.swp
 
 work/
+openalpr-xcode/openalpr/
+openalpr-xcode/Pods/
 
 # CocoaPods
 #
