@@ -1,21 +1,60 @@
 openalpr-ios
 ============
 
-Xcode Framework for the openalpr library
+Xcode Framework for the [openalpr](https://github.com/openalpr/openalpr) library.
 
-## Dependency Installation
+Because openalpr requires Tesseract 3.03, and, as of this writing, that version has not been released yet, it means that we cannot yet use the Tesseract [CocoaPod](http://cocoapods.org).  Instead, this module includes a bash script (based on [this one](http://stackoverflow.com/questions/12849517/c-linking-problems-seems-like-i-cant-link-against-standard-c-stuff)) that will compile universal Tesseract 3.03 and Leptonica 1.71 libraries, which can then be used to compile/link openalpr for iOS.
 
-Run the `./bin/sync_openalpr_source.sh` script.
+It *used to be* that getting openalpr working on iOS required that both OpenCV and Tesseract needed to be compiled with libstdc++ instead of libc++.  **This is no longer the case.** OpenCV has more recently begun to be built with libc++, so it is possible to use it across the dependencies and in openalpr. (It *does* remain a requirement that the same library is used for all dependencies and openalpr.)
+
+The basic steps to getting openalpr configured on XCode are:
+
+- Clone this module, which includes a template XCode project for a openalpr library and Cocoa Touch Framework.
+- Run a script to build the dependencies
+- Configure your own XCode project that will use the openalpr Cocoa Touch Framework.
+
+## Steps in Detail
+
+- Get openalpr source:
+  ```
+  git clone https://github.com/openalpr/openalpr.git openalpr
+  ```
+
+- Clone this module:
+  ```
+  # git clone git@github.com:twelve17/openalpr-ios.git
+  ```
+
+- From the top level `openalpr-ios` git folder, run the `sync_openalpr_source.sh` script, passing the path to whereyou cloned openalpr:
+  ```
+    ./bin/sync_openalpr_source.sh ~/work/lp/openalpr -n
+  ```
+ This script will do the following:
+ - Copy openalpr sources and headers to `openalpr-ios/openalpr-xcode/openalpr`, for use by the XCode project.
+ - Copy openalpr headers (only) to `openalpr-ios/work/dependencies/include/openalpr`, for use by your own XCode iOS application project.
+ - Copy openalpr `runtime_data` folder to `openalpr-ios/work/dependencies/share/openalpr`, for use by your own XCode iOS application project.
+
+
+
+This will compile iOS compatible versions of Leptonica and Tesseract to the prefix `openalpr-ios/work/dependencies`
+
+
+- Open the openalpr-ios/openalpr-xcode XCode project.  
+  - As of this writing, openalpr revision 904ff09fa78f9577c9dfde677c600c5cf38d1c66 required me to make a couple of manual changes:
+    1. Fix a couple of syntax-error lines in [ocr.cpp](https://github.com/openalpr/openalpr/blob/904ff09fa78f9577c9dfde677c600c5cf38d1c66/src/openalpr/ocr.cpp).
+    2. Create a file called `version.h` in the `openalpr` folder (in same folder  `main.cpp` is in) to set a few variables that are required.  This module [includes a copy](https://github.com/twelve17/openalpr-ios/blob/master/etc/version.h) you can use.  The version numbers may be wrong on this file, so feel free to fix them.
+
+
+
+
+
 
 - Uses OpenCV CocoaPod instead of iOS version from OpenCV site.
 - Requires Tesseract 3.03
 
 ## Creating the XCode Project From Scratch
 
-- Get openalpr source:
-  ```
-  git clone https://github.com/openalpr/openalpr.git openalpr
-  ```
+
 
 - Create Project
   - Framework & Library -> Cocoa Touch Static Library 
@@ -23,10 +62,7 @@ Run the `./bin/sync_openalpr_source.sh` script.
   - Save under openalpr-ios folder.
   - Delete openalpr_xcode.h and openalpr_xcode.m (move to trash)
   
-- From the top level git folder, run the `sync_openalpr_source.sh` script:
-  ```
-    ./bin/sync_openalpr_source.sh ~/work/lp/openalpr -n
-  ```
+
 
 - On the left pane, select the 'openalpr-xcode' group.
 - File -> Add files to "openalpr-xcode"
