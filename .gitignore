@@ -23,6 +23,8 @@ work/
 openalpr-xcode/openalpr/
 openalpr-xcode/Pods/
 
+.DS_Store
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
