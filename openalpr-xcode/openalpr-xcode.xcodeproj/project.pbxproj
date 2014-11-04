@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		66E8264937C0794875B2D443 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E8D406727CD4102279002641 /* libPods.a */; };
-		FA56C78F1A093A4B0055CAE4 /* libopenalpr-xcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA56C7831A093A4B0055CAE4 /* libopenalpr-xcode.a */; };
 		FAB487C31A09431B0035DD91 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB487571A09431A0035DD91 /* main.cpp */; };
 		FAB487C41A09431B0035DD91 /* alpr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB487591A09431A0035DD91 /* alpr.cpp */; };
 		FAB487C51A09431B0035DD91 /* alpr_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB4875B1A09431A0035DD91 /* alpr_impl.cpp */; };
@@ -43,18 +41,21 @@
 		FAB487E21A09431B0035DD91 /* textline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB4879F1A09431A0035DD91 /* textline.cpp */; };
 		FAB487E31A09431B0035DD91 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB487A41A09431A0035DD91 /* utility.cpp */; };
 		FAB487E41A09431B0035DD91 /* videobuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB487C11A09431B0035DD91 /* videobuffer.cpp */; };
-		FAB487F01A09471B0035DD91 /* openalpr.h in Headers */ = {isa = PBXBuildFile; fileRef = FAB487EF1A09471B0035DD91 /* openalpr.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FAB4886B1A09572C0035DD91 /* alpr.h in Headers */ = {isa = PBXBuildFile; fileRef = FAB4875A1A09431A0035DD91 /* alpr.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FAB488811A095D460035DD91 /* runtime_data in CopyFiles */ = {isa = PBXBuildFile; fileRef = FAB4887C1A095CFC0035DD91 /* runtime_data */; };
+		FAB488B51A0970AE0035DD91 /* cjson.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB488B41A0970AE0035DD91 /* cjson.c */; };
+		FAB488B71A0970B90035DD91 /* trex.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB488B61A0970B90035DD91 /* trex.c */; };
+		FAB488B91A0970CC0035DD91 /* ConvertUTF.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB488B81A0970CC0035DD91 /* ConvertUTF.c */; };
+		FAB488CA1A0975360035DD91 /* liblept.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB488951A0964510035DD91 /* liblept.a */; };
+		FAB488CB1A0975360035DD91 /* libtesseract.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB488961A0964510035DD91 /* libtesseract.a */; };
+		FAB488D51A09775C0035DD91 /* libopenalpr-xcode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA56C7831A093A4B0055CAE4 /* libopenalpr-xcode.a */; };
+		FAB488F61A0984660035DD91 /* liblept.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB488951A0964510035DD91 /* liblept.a */; };
+		FAB488F71A0984660035DD91 /* libtesseract.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB488961A0964510035DD91 /* libtesseract.a */; };
+		FAB489641A0986E40035DD91 /* alpr.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FAB4875A1A09431A0035DD91 /* alpr.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		FA56C7901A093A4B0055CAE4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FA56C77B1A093A4B0055CAE4 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FA56C7821A093A4B0055CAE4;
-			remoteInfo = "openalpr-xcode";
-		};
-		FAB488051A09481B0035DD91 /* PBXContainerItemProxy */ = {
+		FAB488BC1A0971F90035DD91 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FA56C77B1A093A4B0055CAE4 /* Project object */;
 			proxyType = 1;
@@ -67,9 +68,20 @@
 		FA56C7811A093A4B0055CAE4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
+			dstPath = Headers/openalpr;
+			dstSubfolderSpec = 7;
 			files = (
+				FAB489641A0986E40035DD91 /* alpr.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAB488801A095D360035DD91 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				FAB488811A095D460035DD91 /* runtime_data in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,8 +92,6 @@
 		E3E89CB94A797CFD88CE485D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		E8D406727CD4102279002641 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA56C7831A093A4B0055CAE4 /* libopenalpr-xcode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libopenalpr-xcode.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA56C78E1A093A4B0055CAE4 /* openalpr-xcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "openalpr-xcodeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA56C7941A093A4B0055CAE4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FAB487571A09431A0035DD91 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = openalpr/main.cpp; sourceTree = SOURCE_ROOT; };
 		FAB487591A09431A0035DD91 /* alpr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alpr.cpp; sourceTree = "<group>"; };
 		FAB4875A1A09431A0035DD91 /* alpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alpr.h; sourceTree = "<group>"; };
@@ -183,10 +193,13 @@
 		FAB487C21A09431B0035DD91 /* videobuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = videobuffer.h; sourceTree = "<group>"; };
 		FAB487E51A0944FC0035DD91 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		FAB487EB1A09471B0035DD91 /* openalpr.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = openalpr.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FAB487EE1A09471B0035DD91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FAB487EF1A09471B0035DD91 /* openalpr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = openalpr.h; sourceTree = "<group>"; };
-		FAB487FB1A09471C0035DD91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FAB487FC1A09471C0035DD91 /* openalprTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = openalprTests.m; sourceTree = "<group>"; };
+		FAB4887C1A095CFC0035DD91 /* runtime_data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = runtime_data; path = ../../../lp/openalpr/runtime_data; sourceTree = "<group>"; };
+		FAB488821A095DC10035DD91 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
+		FAB488951A0964510035DD91 /* liblept.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblept.a; path = ../work/dependencies/lib/liblept.a; sourceTree = "<group>"; };
+		FAB488961A0964510035DD91 /* libtesseract.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtesseract.a; path = ../work/dependencies/lib/libtesseract.a; sourceTree = "<group>"; };
+		FAB488B41A0970AE0035DD91 /* cjson.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cjson.c; sourceTree = "<group>"; };
+		FAB488B61A0970B90035DD91 /* trex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = trex.c; sourceTree = "<group>"; };
+		FAB488B81A0970CC0035DD91 /* ConvertUTF.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ConvertUTF.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,15 +207,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				66E8264937C0794875B2D443 /* libPods.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FA56C78B1A093A4B0055CAE4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FA56C78F1A093A4B0055CAE4 /* libopenalpr-xcode.a in Frameworks */,
+				FAB488F61A0984660035DD91 /* liblept.a in Frameworks */,
+				FAB488F71A0984660035DD91 /* libtesseract.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +216,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAB488CA1A0975360035DD91 /* liblept.a in Frameworks */,
+				FAB488CB1A0975360035DD91 /* libtesseract.a in Frameworks */,
+				FAB488D51A09775C0035DD91 /* libopenalpr-xcode.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,6 +237,8 @@
 		499AC0D9183B6A0B081065AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAB488951A0964510035DD91 /* liblept.a */,
+				FAB488961A0964510035DD91 /* libtesseract.a */,
 				E8D406727CD4102279002641 /* libPods.a */,
 			);
 			name = Frameworks;
@@ -236,10 +247,8 @@
 		FA56C77A1A093A4B0055CAE4 = {
 			isa = PBXGroup;
 			children = (
+				FAB4887E1A095D090035DD91 /* Resources */,
 				FA56C7851A093A4B0055CAE4 /* openalpr-xcode */,
-				FA56C7921A093A4B0055CAE4 /* openalpr-xcodeTests */,
-				FAB487EC1A09471B0035DD91 /* openalpr */,
-				FAB487F91A09471C0035DD91 /* openalprTests */,
 				FA56C7841A093A4B0055CAE4 /* Products */,
 				058503F87D2886DEA56627E5 /* Pods */,
 				499AC0D9183B6A0B081065AC /* Frameworks */,
@@ -250,7 +259,6 @@
 			isa = PBXGroup;
 			children = (
 				FA56C7831A093A4B0055CAE4 /* libopenalpr-xcode.a */,
-				FA56C78E1A093A4B0055CAE4 /* openalpr-xcodeTests.xctest */,
 				FAB487EB1A09471B0035DD91 /* openalpr.framework */,
 			);
 			name = Products;
@@ -259,28 +267,13 @@
 		FA56C7851A093A4B0055CAE4 /* openalpr-xcode */ = {
 			isa = PBXGroup;
 			children = (
+				FAB488821A095DC10035DD91 /* Info.plist */,
 				FAB487571A09431A0035DD91 /* main.cpp */,
 				FAB487581A09431A0035DD91 /* openalpr */,
 				FAB487A61A09431A0035DD91 /* tclap */,
 				FAB487BF1A09431B0035DD91 /* video */,
 			);
 			path = "openalpr-xcode";
-			sourceTree = "<group>";
-		};
-		FA56C7921A093A4B0055CAE4 /* openalpr-xcodeTests */ = {
-			isa = PBXGroup;
-			children = (
-				FA56C7931A093A4B0055CAE4 /* Supporting Files */,
-			);
-			path = "openalpr-xcodeTests";
-			sourceTree = "<group>";
-		};
-		FA56C7931A093A4B0055CAE4 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				FA56C7941A093A4B0055CAE4 /* Info.plist */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		FAB487581A09431A0035DD91 /* openalpr */ = {
@@ -295,6 +288,7 @@
 				FAB4875F1A09431A0035DD91 /* characterregion.cpp */,
 				FAB487601A09431A0035DD91 /* characterregion.h */,
 				FAB487611A09431A0035DD91 /* cjson.h */,
+				FAB488B41A0970AE0035DD91 /* cjson.c */,
 				FAB487621A09431A0035DD91 /* colorfilter.cpp */,
 				FAB487631A09431A0035DD91 /* colorfilter.h */,
 				FAB487641A09431A0035DD91 /* config.cpp */,
@@ -323,6 +317,7 @@
 				FAB487961A09431A0035DD91 /* textdetection */,
 				FAB487A11A09431A0035DD91 /* tinythread */,
 				FAB487A21A09431A0035DD91 /* trex.h */,
+				FAB488B61A0970B90035DD91 /* trex.c */,
 				FAB487A31A09431A0035DD91 /* TRexpp.h */,
 				FAB487A41A09431A0035DD91 /* utility.cpp */,
 				FAB487A51A09431A0035DD91 /* utility.h */,
@@ -364,6 +359,7 @@
 			isa = PBXGroup;
 			children = (
 				FAB487861A09431A0035DD91 /* ConvertUTF.h */,
+				FAB488B81A0970CC0035DD91 /* ConvertUTF.c */,
 				FAB487871A09431A0035DD91 /* simpleini.h */,
 				FAB487881A09431A0035DD91 /* snippets.cpp */,
 			);
@@ -454,38 +450,12 @@
 			path = openalpr/video;
 			sourceTree = SOURCE_ROOT;
 		};
-		FAB487EC1A09471B0035DD91 /* openalpr */ = {
+		FAB4887E1A095D090035DD91 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				FAB487EF1A09471B0035DD91 /* openalpr.h */,
-				FAB487ED1A09471B0035DD91 /* Supporting Files */,
+				FAB4887C1A095CFC0035DD91 /* runtime_data */,
 			);
-			path = openalpr;
-			sourceTree = "<group>";
-		};
-		FAB487ED1A09471B0035DD91 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				FAB487EE1A09471B0035DD91 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		FAB487F91A09471C0035DD91 /* openalprTests */ = {
-			isa = PBXGroup;
-			children = (
-				FAB487FC1A09471C0035DD91 /* openalprTests.m */,
-				FAB487FA1A09471C0035DD91 /* Supporting Files */,
-			);
-			path = openalprTests;
-			sourceTree = "<group>";
-		};
-		FAB487FA1A09471C0035DD91 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				FAB487FB1A09471C0035DD91 /* Info.plist */,
-			);
-			name = "Supporting Files";
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -495,7 +465,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAB487F01A09471B0035DD91 /* openalpr.h in Headers */,
+				FAB4886B1A09572C0035DD91 /* alpr.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,24 +491,6 @@
 			productReference = FA56C7831A093A4B0055CAE4 /* libopenalpr-xcode.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		FA56C78D1A093A4B0055CAE4 /* openalpr-xcodeTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FA56C79A1A093A4B0055CAE4 /* Build configuration list for PBXNativeTarget "openalpr-xcodeTests" */;
-			buildPhases = (
-				FA56C78A1A093A4B0055CAE4 /* Sources */,
-				FA56C78B1A093A4B0055CAE4 /* Frameworks */,
-				FA56C78C1A093A4B0055CAE4 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				FA56C7911A093A4B0055CAE4 /* PBXTargetDependency */,
-			);
-			name = "openalpr-xcodeTests";
-			productName = "openalpr-xcodeTests";
-			productReference = FA56C78E1A093A4B0055CAE4 /* openalpr-xcodeTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		FAB487EA1A09471B0035DD91 /* openalpr */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAB487FE1A09471C0035DD91 /* Build configuration list for PBXNativeTarget "openalpr" */;
@@ -547,11 +499,13 @@
 				FAB487E71A09471B0035DD91 /* Frameworks */,
 				FAB487E81A09471B0035DD91 /* Headers */,
 				FAB487E91A09471B0035DD91 /* Resources */,
+				FAB488801A095D360035DD91 /* CopyFiles */,
+				FAB489681A0987FE0035DD91 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				FAB488061A09481B0035DD91 /* PBXTargetDependency */,
+				FAB488BD1A0971F90035DD91 /* PBXTargetDependency */,
 			);
 			name = openalpr;
 			productName = openalpr;
@@ -568,9 +522,6 @@
 				ORGANIZATIONNAME = "Motologic, Inc.";
 				TargetAttributes = {
 					FA56C7821A093A4B0055CAE4 = {
-						CreatedOnToolsVersion = 6.1;
-					};
-					FA56C78D1A093A4B0055CAE4 = {
 						CreatedOnToolsVersion = 6.1;
 					};
 					FAB487EA1A09471B0035DD91 = {
@@ -591,20 +542,12 @@
 			projectRoot = "";
 			targets = (
 				FA56C7821A093A4B0055CAE4 /* openalpr-xcode */,
-				FA56C78D1A093A4B0055CAE4 /* openalpr-xcodeTests */,
 				FAB487EA1A09471B0035DD91 /* openalpr */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		FA56C78C1A093A4B0055CAE4 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		FAB487E91A09471B0035DD91 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -645,6 +588,19 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		FAB489681A0987FE0035DD91 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -654,6 +610,7 @@
 			files = (
 				FAB487E01A09431B0035DD91 /* platemask.cpp in Sources */,
 				FAB487D21A09431B0035DD91 /* platelines.cpp in Sources */,
+				FAB488B71A0970B90035DD91 /* trex.c in Sources */,
 				FAB487C51A09431B0035DD91 /* alpr_impl.cpp in Sources */,
 				FAB487E41A09431B0035DD91 /* videobuffer.cpp in Sources */,
 				FAB487C61A09431B0035DD91 /* binarize_wolf.cpp in Sources */,
@@ -675,6 +632,7 @@
 				FAB487DD1A09431B0035DD91 /* tinythread.cpp in Sources */,
 				FAB487CD1A09431B0035DD91 /* featurematcher.cpp in Sources */,
 				FAB487D01A09431B0035DD91 /* pipeline_data.cpp in Sources */,
+				FAB488B51A0970AE0035DD91 /* cjson.c in Sources */,
 				FAB487CF1A09431B0035DD91 /* ocr.cpp in Sources */,
 				FAB487E11A09431B0035DD91 /* textcontours.cpp in Sources */,
 				FAB487DF1A09431B0035DD91 /* linefinder.cpp in Sources */,
@@ -682,17 +640,11 @@
 				FAB487DB1A09431B0035DD91 /* platform.cpp in Sources */,
 				FAB487D81A09431B0035DD91 /* snippets.cpp in Sources */,
 				FAB487DA1A09431B0035DD91 /* filesystem.cpp in Sources */,
+				FAB488B91A0970CC0035DD91 /* ConvertUTF.c in Sources */,
 				FAB487C81A09431B0035DD91 /* colorfilter.cpp in Sources */,
 				FAB487D91A09431B0035DD91 /* stateidentifier.cpp in Sources */,
 				FAB487CA1A09431B0035DD91 /* detector.cpp in Sources */,
 				FAB487DC1A09431B0035DD91 /* timing.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FA56C78A1A093A4B0055CAE4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -706,15 +658,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		FA56C7911A093A4B0055CAE4 /* PBXTargetDependency */ = {
+		FAB488BD1A0971F90035DD91 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FA56C7821A093A4B0055CAE4 /* openalpr-xcode */;
-			targetProxy = FA56C7901A093A4B0055CAE4 /* PBXContainerItemProxy */;
-		};
-		FAB488061A09481B0035DD91 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = FA56C7821A093A4B0055CAE4 /* openalpr-xcode */;
-			targetProxy = FAB488051A09481B0035DD91 /* PBXContainerItemProxy */;
+			targetProxy = FAB488BC1A0971F90035DD91 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -756,7 +703,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -794,7 +741,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -828,6 +775,10 @@
 					"\"${PODS_ROOT}/Headers/Public/OpenCV/opencv2/world\"",
 					"$(PROJECT_DIR)/openalpr/**",
 					"$(PROJECT_DIR)/../work/dependencies/include/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Moto1/work/ios/openalpr-ios/work/dependencies/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -863,45 +814,20 @@
 					"$(PROJECT_DIR)/openalpr/**",
 					"$(PROJECT_DIR)/../work/dependencies/include/",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Moto1/work/ios/openalpr-ios/work/dependencies/lib",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
-		FA56C79B1A093A4B0055CAE4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "openalpr-xcodeTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		FA56C79C1A093A4B0055CAE4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "openalpr-xcodeTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		FAB487FF1A09471C0035DD91 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -912,9 +838,15 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = openalpr/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks/ ";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Moto1/work/ios/openalpr-ios/work/dependencies/lib",
+				);
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -926,15 +858,22 @@
 		FAB488001A09471C0035DD91 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = openalpr/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks/ ";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Volumes/Moto1/work/ios/openalpr-ios/work/dependencies/lib",
+				);
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -960,15 +899,6 @@
 			buildConfigurations = (
 				FA56C7981A093A4B0055CAE4 /* Debug */,
 				FA56C7991A093A4B0055CAE4 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		FA56C79A1A093A4B0055CAE4 /* Build configuration list for PBXNativeTarget "openalpr-xcodeTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FA56C79B1A093A4B0055CAE4 /* Debug */,
-				FA56C79C1A093A4B0055CAE4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
