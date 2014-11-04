@@ -57,6 +57,8 @@ pod 'OpenCV'
   # open openalpr-xcode.xcworkspace
   ```
 
+- Remove `openalpr-xcodeTests` target by selecting it, then selecting the - at the bottom of the panel.
+
 - Add search path for openalpr headers within the Project, as well as 
   tesseract and leptonica headers.
   - openalpr-xcode -> Targets -> openalpr-xcode -> Build Settings 
@@ -76,7 +78,39 @@ pod 'OpenCV'
   - openalpr-xcode -> Targets -> openalpr -> Build Phases
     - Target Dependencies, add: `openalpr-xcode` (static library target)
 
+- Add alpr.h header as public.
   - openalpr-xcode -> Targets -> openalpr -> Build Phases
+    - Headers  
+      - Remove 'openalpr.h' by pressing the - sign 
+      - Add 'openalpr/alpr.h' by dragging it from the navigator.
+
+TODO: - Add Info.plist file to openalpr (Framework) target.
+TODO: - Set installation directory in openalpr (Framework) target.
+ - from /Library/Frameworks to @loader_path/../Frameworks/ 
+ - skip install - no?
+
+- Add Tesseract and Leptonica libraries.
+  - openalpr-xcode -> Targets -> openalpr -> Build Phases
+    - Link Binary With Libraries
+      - Add Other.  Browse to openalpr-ios/work/dependencies/lib
+      - Remove 'openalpr.h' by pressing the - sign 
+      - Add 'openalpr/alpr.h' by dragging it from the navigator.
+
+
+# TODO: this is not needed.  Only the library needs this, and they should already exist.  The framework should not compile any sources.
+- Add sources to compile 
+  - openalpr-xcode -> Targets -> openalpr -> Build Phases
+  - Compile Sources.  Press the "plus" sign.  Shift click to select all sources under the openalpr folder, as well as the main.cpp class.
+
+- Build library 
+  - Select the openalpr-xcode Library from the drop down to the right of the "Play" and "Stop" icons on the top toolbar, left side.
+  - Press command-B to build.  Under Products, the libopenalpr-xcode.a should have turned from red to black.
+  - Select the openalpr Framework from the drop down to the right of the "Play" and "Stop" icons on the top toolbar, left side.
+  - Press command-B to build.  Under Products, the libopenalpr-xcode.a should have turned from red to black.
+
+
+
+xxxxx  - openalpr-xcode -> Targets -> openalpr -> Build Phases
   - Link Binary With Libraries, add: 
     - `openalpr-xcode.a`
     - `$(PROJECT_DIR)/openalpr` (recursive)
