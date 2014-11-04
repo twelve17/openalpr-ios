@@ -1,5 +1,11 @@
 #!/bin/bash -x
 
+
+WORK_DIR=`pwd`/work
+GLOBAL_OUTDIR="$WORK_DIR/dependencies"
+INCLUDE_DIR=$GLOBAL_OUTDIR/include/openalpr
+SHARE_DIR=$GLOBAL_OUTDIR/share/openalpr
+
 TARGET_DIR=`pwd`/openalpr-xcode/openalpr
 
 if [ -z "$OPENALPR_SRC_DIR" ]; then 
@@ -22,6 +28,7 @@ if [ ! -d "$TARGET_DIR" ]; then
   mkdir $TARGET_DIR
 fi
 
+# copy sources for openalpr xcode project
 rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --exclude=daemon.cpp \
   --exclude=cmake_modules/  \
@@ -29,6 +36,7 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --exclude=misc_utilities/ \
   --exclude=tests/ \
   --include='*.h' \
+  --include='*.c' \
   --include='*.cpp' \
   --include='*/' \
   --exclude='*' \
@@ -39,3 +47,26 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
 #  --exclude=tests \
 #  --exclude=CMakeLists.txt \
 #  --exclude=plate_push.py \
+
+# copy headers for consuming xcode project
+
+echo "Copying headers to $INCLUDE_DIR"
+
+mkdir $INCLUDE_DIR
+
+rsync -av $@ $OPENALPR_SRC_DIR/src/ \
+  --exclude=cmake_modules/  \
+  --exclude=build/ \
+  --exclude=misc_utilities/ \
+  --exclude=tests/ \
+  --include='*.h' \
+  --include='*/' \
+  --exclude='*' \
+  $INCLUDE_DIR/
+
+echo "Copying runtime data to $SHARE_DIR"
+
+mkdir -p $SHARE_DIR
+
+rsync -av $@ $OPENALPR_SRC_DIR/runtime_data \
+  $SHARE_DIR
