@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # build.sh
 
 # This is a modification of this script:
