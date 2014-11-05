@@ -73,7 +73,7 @@ setenv_all() {
 function set_env_for_platform() {
   local platform=$1
 
-	unset BUILD_HOST_NAME SDKROOT CFLAGS CC LD CPP CXX AR AS NM CXXCPP RANLIB LDFLAGS CPPFLAGS CXXFLAGS
+  unset BUILD_HOST_NAME SDKROOT CFLAGS CC LD CPP CXX AR AS NM CXXCPP RANLIB LDFLAGS CPPFLAGS CXXFLAGS
 
   if [ "$platform" == "i386" ]; then 
     export SDKROOT=$SDK_IPHONESIMULATOR
@@ -110,7 +110,7 @@ create_outdir_lipo() {
 
 	for lib_i386 in `find $LOCAL_OUTDIR/i386 -name "lib*.a"`; do
 
-		local lib=`echo $lib_i386 | sed "s/i386//g"`
+    local lib=`echo $lib_i386 | sed "s/i386//g"`
     local lipoArgs=""
 
     for platform in $BUILD_PLATFORMS; do 
@@ -128,24 +128,24 @@ create_outdir_lipo() {
     local lipoArgs="$lipoArgs -arch i386 $lib_i386"
 
     echo "LIPOing libs  with args: $lipoArgs"
-		lipoResult=`xcrun -sdk iphoneos lipo $lipoArgs -create -output $lib 2>&1`
+    lipoResult=`xcrun -sdk iphoneos lipo $lipoArgs -create -output $lib 2>&1`
     if [ `echo $lipoResult | grep -c 'fatal error'` == 1 ]; then 
       echo "Got fatal error during LIPO: ${lipoResult}"
       exit 1
     fi
-	done
+  done
 }
 
 #-----------------------------------------------------------------------------
 merge_libfiles() {
-	local DIR=$1
-	local LIBNAME=$2
+  local DIR=$1
+  local LIBNAME=$2
 
   local tmpDir="${DIR}.tmp"
   mkdir $tmpDir
-	
-	cd $tmpDir
-	for file in `find ../../$DIR -name "lib*.a"`; do
+
+  cd $tmpDir
+  for file in `find ../../$DIR -name "lib*.a"`; do
     $AR -x $file `$AR -t $file  | grep ".o$"`
     $AR -r ../../$DIR/$LIBNAME *.o
   done
@@ -154,7 +154,6 @@ merge_libfiles() {
   rm -f $tmpDir/*
   rmdir $tmpDir
 }
-
 
 #-----------------------------------------------------------------------------
 function cleanup_output() {
@@ -227,7 +226,6 @@ function install_tesseract() {
 
   cleanup_source
 }
-
 
 #-----------------------------------------------------------------------------
 
