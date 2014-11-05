@@ -12,15 +12,6 @@
 
 # This script was tested with iOS 8.0 base target, on Mavericks.
 
-
-# http://stackoverflow.com/questions/6429494/undefined-symbols-for-architecture-armv7/10170293#10170293
-# http://tinsuke.wordpress.com/2011/11/01/how-to-compile-and-use-tesseract-3-01-on-ios-sdk-5/
-# http://stackoverflow.com/questions/16323316/tesseract-ocr-3-02-with-libc
-# http://stackoverflow.com/questions/17733162/compiler-errors-after-upgrading-to-opencv-2-4-5-on-ios-is-there-a-quick-fix-to
-# http://stackoverflow.com/questions/14855844/errors-in-tesseract-integration-in-ios-app
-# http://stackoverflow.com/questions/16352833/linking-with-clang-on-os-x-generates-lots-of-symbol-not-found-errors
-# http://stackoverflow.com/questions/13933513/build-error-using-featured2d-in-opencv-with-xcode
-
 trap "echo 'error with last command. exiting.' && exit 1" ERR
 trap "echo 'user interrupted.' && exit 1" INT
 
