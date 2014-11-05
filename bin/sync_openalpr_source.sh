@@ -1,5 +1,4 @@
-#!/bin/bash -x
-
+#!/bin/bash
 
 WORK_DIR=`pwd`/work
 GLOBAL_OUTDIR="$WORK_DIR/dependencies"
@@ -33,7 +32,9 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --exclude=daemon.cpp \
   --exclude=cmake_modules/  \
   --exclude=build/ \
+  --exclude=daemon/ \
   --exclude=misc_utilities/ \
+  --exclude=support/windows/ \
   --exclude=tests/ \
   --include='*.h' \
   --include='*.c' \
@@ -41,14 +42,12 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --include='*/' \
   --exclude='*' \
   $TARGET_DIR/
-#  --exclude=tclap/ \
-#  --include='openalpr/*' \
-#  --exclude=build \
-#  --exclude=tests \
-#  --exclude=CMakeLists.txt \
-#  --exclude=plate_push.py \
 
 # copy headers for consuming xcode project
+
+echo "Copying stub version.h file."
+
+cp etc/version.h $TARGET_DIR/openalpr/
 
 echo "Copying headers to $INCLUDE_DIR"
 
