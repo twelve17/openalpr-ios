@@ -108,7 +108,7 @@ function set_env_for_platform() {
 #-----------------------------------------------------------------------------
 create_outdir_lipo() {
 
-	for lib_i386 in `find $LOCAL_OUTDIR/i386 -name "lib*.a"`; do
+  for lib_i386 in `find $LOCAL_OUTDIR/i386 -name "lib*.a"`; do
 
     local lib=`echo $lib_i386 | sed "s/i386//g"`
     local lipoArgs=""
