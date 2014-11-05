@@ -3,7 +3,7 @@
 
 # This is a modification of this script:
 #
-# http://stackoverflow.com/questions/12849517/c-linking-problems-seems-like-i-cant-link-against-standard-c-stuff
+# http://tinsuke.wordpress.com/2011/11/01/how-to-compile-and-use-tesseract-3-01-on-ios-sdk-5/
 #
 # It has been updated with the following:
 # - amd64 build support
