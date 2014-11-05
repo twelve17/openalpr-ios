@@ -49,10 +49,10 @@ TESSERACT_HEADERS=(
 
 #-----------------------------------------------------------------------------
 setenv_all() {
-  
-	# Add internal libs
-	export CFLAGS="$CFLAGS -I$GLOBAL_OUTDIR/include -L$GLOBAL_OUTDIR/lib"
-	
+
+  # Add internal libs
+  export CFLAGS="$CFLAGS -I$GLOBAL_OUTDIR/include -L$GLOBAL_OUTDIR/lib"
+
   export CXX=`xcrun -find c++`
   export CC=`xcrun -find cc`
   export PATH="$XCODETOOLCHAIN/usr/bin:$PATH"
@@ -63,49 +63,30 @@ setenv_all() {
   export NM=`xcrun -find nm`
   export RANLIB=`xcrun -find ranlib`
 
-	#export CXX="$DEVROOT/usr/bin/llvm-g++"
-	#export CC="$DEVROOT/usr/bin/llvm-gcc"
-#	export CXX="/usr/bin/g++ -stdlib=libc++" #-std=c++11"
-#	export CC="/usr/bin/gcc"
-#
-#	export LD=$DEVROOT/usr/bin/ld
-#	export AR=$DEVROOT/usr/bin/ar
-#	export AS=$DEVROOT/usr/bin/as
-#	export NM=$DEVROOT/usr/bin/nm
-#	export RANLIB=$DEVROOT/usr/bin/ranlib
-	export LDFLAGS="-L$SDKROOT/usr/lib/"
-	
-	export CPPFLAGS=$CFLAGS
-	export CXXFLAGS=$CFLAGS
+  export LDFLAGS="-L$SDKROOT/usr/lib/"
+
+  export CPPFLAGS=$CFLAGS
+  export CXXFLAGS=$CFLAGS
 }
 
 #-----------------------------------------------------------------------------
 function set_env_for_platform() {
   local platform=$1
 
-  local XCODE_DEV_DIR="/Applications/Xcode.app/Contents/Developer/"
-
-	unset BUILD_HOST_NAME DEVROOT SDKROOT CFLAGS CC LD CPP CXX AR AS NM CXXCPP RANLIB LDFLAGS CPPFLAGS CXXFLAGS
+	unset BUILD_HOST_NAME SDKROOT CFLAGS CC LD CPP CXX AR AS NM CXXCPP RANLIB LDFLAGS CPPFLAGS CXXFLAGS
 
   if [ "$platform" == "i386" ]; then 
-    #export DEVROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer
-    #export SDKROOT=$DEVROOT/SDKs/iPhoneSimulator$IOS_BASE_SDK.sdk
-    #export DEVROOT=$XCODE_DEV_DIR/Toolchains/XcodeDefault.xctoolchain
-    #export SDKROOT=$XCODE_DEV_DIR/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator$IOS_BASE_SDK.sdk
     export SDKROOT=$SDK_IPHONESIMULATOR
     export CFLAGS="-arch i386 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT"
   elif [ "$platform" == "armv7" ]; then 
-    #export DEVROOT=$XCODE_DEV_DIR/Platforms/iPhoneOS.platform/Developer
     export SDKROOT=$SDK_IPHONEOS
     export CFLAGS="-arch armv7 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT -I$SDKROOT/usr/include/"
     export BUILD_HOST_NAME="arm-apple-darwin7"
   elif [ "$platform" == "armv7s" ]; then 
-    #export DEVROOT=$XCODE_DEV_DIR/Platforms/iPhoneOS.platform/Developer
     export SDKROOT=$SDK_IPHONEOS
     export CFLAGS="-arch armv7s -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT -I$SDKROOT/usr/include/"
     export BUILD_HOST_NAME="arm-apple-darwin7s"
   elif [ "$platform" == "arm64" ]; then 
-    #export DEVROOT=$XCODE_DEV_DIR/Platforms/iPhoneOS.platform/Developer
     export SDKROOT=$SDK_IPHONEOS
     export CFLAGS="-arch arm64 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT -I$SDKROOT/usr/include/"
     export BUILD_HOST_NAME="arm-apple-darwin64"
@@ -129,12 +110,7 @@ create_outdir_lipo() {
 
 	for lib_i386 in `find $LOCAL_OUTDIR/i386 -name "lib*.a"`; do
 
-		#lib_arm7=`echo $lib_i386 | sed "s/i386/arm7/g"`
-		#lib_arm7s=`echo $lib_i386 | sed "s/i386/arm7s/g"`
-		#lib_arm64=`echo $lib_i386 | sed "s/i386/arm64/g"`
 		local lib=`echo $lib_i386 | sed "s/i386//g"`
-
-    #local lipoArgs="-arch i386 $lib_i386"
     local lipoArgs=""
 
     for platform in $BUILD_PLATFORMS; do 
@@ -157,7 +133,6 @@ create_outdir_lipo() {
       echo "Got fatal error during LIPO: ${lipoResult}"
       exit 1
     fi
-		#xcrun -sdk iphoneos lipo -arch armv7s $lib_arm7s -arch armv7 $lib_arm7 -arch i386 $lib_i386 -arch arm64 $lib_arm64 -create -output $lib
 	done
 }
 
@@ -170,17 +145,10 @@ merge_libfiles() {
   mkdir $tmpDir
 	
 	cd $tmpDir
-	#find . -name "../../$DIR/lib*.a" -print -exec $AR -x {} \;
 	for file in `find ../../$DIR -name "lib*.a"`; do
     $AR -x $file `$AR -t $file  | grep ".o$"`
     $AR -r ../../$DIR/$LIBNAME *.o
   done
-
-	#for i in `find . -name "lib*.a"`; do
-#		$AR -x $i
-#	done
-	#$AR -r ../$DIR/$LIBNAME *.o
-	#rm -rf *.o __*
   cd -
 
   rm -f $tmpDir/*
@@ -231,16 +199,6 @@ function install_leptonica() {
   mkdir -p $GLOBAL_OUTDIR/lib && cp -rvf $LOCAL_OUTDIR/lib*.a $GLOBAL_OUTDIR/lib
 }
 
-
-#######################
-# TESSERACT-OCR (v3)
-# ./configure --host=arm-apple-darwin7 --enable-shared=no LIBLEPT_HEADERSDIR=$GLOBAL_OUTDIR/include/
-# for i in `find . -name "lib*.a" | grep -v arm`; do cp -rvf $i $LOCAL_OUTDIR/arm7; done
-# ./configure --host=arm-apple-darwin7s --enable-shared=no LIBLEPT_HEADERSDIR=$GLOBAL_OUTDIR/include/
-# for i in `find . -name "lib*.a" | grep -v arm`; do cp -rvf $i $LOCAL_OUTDIR/arm7s; done
-# ./configure --enable-shared=no LIBLEPT_HEADERSDIR=$GLOBAL_OUTDIR/include/
-# for i in `find . -name "lib*.a" | grep -v arm`; do cp -rvf $i $LOCAL_OUTDIR/i386; done
-#######################
 #-----------------------------------------------------------------------------
 function install_tesseract() {
   cleanup_output
@@ -262,11 +220,6 @@ function install_tesseract() {
 
   create_outdir_lipo
   mkdir -p $GLOBAL_OUTDIR/include/tesseract
-#  tess_inc=( api/apitypes.h api/baseapi.h 
-#  ccmain/pageiterator.h ccmain/mutableiterator.h ccmain/ltrresultiterator.h ccmain/resultiterator.h 
-#  ccmain/thresholder.h ccstruct/publictypes.h ccutil/errcode.h
-#  ccutil/genericvector.h ccutil/helpers.h ccutil/host.h ccutil/ndminx.h ccutil/ocrclass.h
-#  ccutil/platform.h ccutil/tesscallback.h ccutil/unichar.h )
   for i in "${TESSERACT_HEADERS[@]}"; do
     cp -rvf $i $GLOBAL_OUTDIR/include/tesseract
   done
