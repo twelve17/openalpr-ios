@@ -30,7 +30,7 @@ TESSERACT_LIB_URL='https://drive.google.com/uc?id=0B7l10Bj_LprhSGN2bTYwemVRREU&e
 IOS_BASE_SDK="8.0"
 IOS_DEPLOY_TGT="8.0"
 
-BUILD_PLATFORMS="i386 armv7 armv7s arm64"
+BUILD_PLATFORMS="i386 armv7 armv7s arm64 x86_64"
 
 XCODE_DEVELOPER="/Applications/Xcode.app/Contents/Developer"
 XCODETOOLCHAIN=$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain
@@ -78,6 +78,9 @@ function set_env_for_platform() {
   if [ "$platform" == "i386" ]; then 
     export SDKROOT=$SDK_IPHONESIMULATOR
     export CFLAGS="-arch i386 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT"
+  elif [ "$platform" == "x86_64" ]; then 
+    export SDKROOT=$SDK_IPHONESIMULATOR
+    export CFLAGS="-arch x86_64 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT"
   elif [ "$platform" == "armv7" ]; then 
     export SDKROOT=$SDK_IPHONEOS
     export CFLAGS="-arch armv7 -pipe -no-cpp-precomp -isysroot $SDKROOT -miphoneos-version-min=$IOS_DEPLOY_TGT -I$SDKROOT/usr/include/"
@@ -137,6 +140,9 @@ create_outdir_lipo() {
 }
 
 #-----------------------------------------------------------------------------
+# Show symbols:
+# nm -gU  libtesseract.a  | grep GetIterator
+#-----------------------------------------------------------------------------
 merge_libfiles() {
   local DIR=$1
   local LIBNAME=$2
@@ -158,7 +164,7 @@ merge_libfiles() {
 #-----------------------------------------------------------------------------
 function cleanup_output() {
   rm -rf $LOCAL_OUTDIR
-  mkdir -p $LOCAL_OUTDIR/armv7 $LOCAL_OUTDIR/i386 $LOCAL_OUTDIR/armv7s $LOCAL_OUTDIR/arm64
+  mkdir -p $LOCAL_OUTDIR/armv7 $LOCAL_OUTDIR/i386 $LOCAL_OUTDIR/armv7s $LOCAL_OUTDIR/arm64 $LOCAL_OUTDIR/x86_64
 }
 
 #-----------------------------------------------------------------------------
