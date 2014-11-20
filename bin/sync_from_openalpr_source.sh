@@ -32,6 +32,7 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --exclude=daemon.cpp \
   --exclude=cmake_modules/  \
   --exclude=build/ \
+  --exclude=upstart/ \
   --exclude=daemon/ \
   --exclude=misc_utilities/ \
   --exclude=support/windows/ \
@@ -69,3 +70,32 @@ mkdir -p $SHARE_DIR
 
 rsync -av $@ $OPENALPR_SRC_DIR/runtime_data \
   $SHARE_DIR
+
+#-----------------------------------------------------------------------------
+# Unused for now.
+#-----------------------------------------------------------------------------
+function syncWithLinks() { 
+  local dirs=`find . -maxdepth 1 -type d -not -path './daemon' -not -path './cmake_modules' -not -path './build' -not -path './misc_utilities' -not -path './openalpr' -not -path './tests/*'`
+
+  for dir in $dirs; do
+    echo "DIR: $file"
+    local target_sub_dir="$OPENALPR_SRC_DIR/src/$dir"
+    local link_path="$TARGET_DIR/$dir"
+    echo "$target_sub_dir -> $link_path"
+    ln -s $target_sub_dir $link_path
+  done
+
+  local items=`find . -not -path '*.py'  -not -path ./daemon.cpp -not -path './daemon/*' -not -path './cmake_modules/*' -not -path './build/*' -not -path './misc_utilities/*' -not -path './openalpr/support/windows/*' -not -path './tests/*' \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.hpp' -o -iname '*.c' \)`
+
+  for file in $items; do
+    echo "FILE: $file"
+    local target_file="$OPENALPR_SRC_DIR/src/$file"
+    local link_path="$TARGET_DIR/$file"
+    local link_dir=`dirname $link_path`
+    if [ ! -a "$link_dir" ]; then 
+      mkdir -p "$link_dir"
+    fi
+    echo "$link_path -> $target_file"
+    ln -s $target_file $link_path
+  done
+}
