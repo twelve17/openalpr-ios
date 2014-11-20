@@ -51,9 +51,8 @@ The basic steps to getting openalpr configured on XCode are:
   ```
   # open openalpr-xcode.xcworkspace
   ```
-  - As of this writing, the latest openalpr revision was 904ff09fa78f9577c9dfde677c600c5cf38d1c66, and it required me to make a couple of manual changes:
-    1. Fix a couple of syntax-error lines in [ocr.cpp](https://github.com/openalpr/openalpr/blob/904ff09fa78f9577c9dfde677c600c5cf38d1c66/src/openalpr/ocr.cpp).
-    2. Create a file called `version.h` in the `openalpr` folder (in same folder  `main.cpp` is in) to set a few variables that are required, like this:
+  - As of this writing, the latest openalpr revision was beea8923f6c4671170753b382cc598d76fbf38ff, and it required me to make a couple of manual changes:
+    1. Create a file called `version.h` in the `openalpr` folder (in same folder  `main.cpp` is in) to set a few variables that are required, like this:
     ```
     #define OPENALPR_MAJOR_VERSION "1"
     #define OPENALPR_MINOR_VERSION "2"
