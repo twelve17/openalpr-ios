@@ -1,5 +1,7 @@
 #!/bin/bash 
 
+OPENALPR_SRC_DIR="$HOME/work/lp/openalpr-t17"
+
 WORK_DIR=`pwd`/work
 FROM_DIR=`pwd`/openalpr-xcode/openalpr
 
@@ -19,4 +21,9 @@ if [ ! -d "$OPENALPR_SRC_DIR" ]; then
   exit 1 
 fi
 
-rsync --itemize-changes --exclude=.git  --exclude=.DS_Store $@ $FROM_DIR $OPENALPR_SRC_DIR
+rsync -av --itemize-changes --exclude=.git \
+  --exclude=.DS_Store \
+  --exclude=@loader_path \
+  --exclude=Frameworks \
+  --exclude=openalpr.framework \
+  $@ $FROM_DIR/ $OPENALPR_SRC_DIR/src/

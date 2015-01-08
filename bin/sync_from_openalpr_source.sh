@@ -1,5 +1,10 @@
 #!/bin/bash
 
+trap "echo 'error with last command. exiting.' && exit 1" ERR
+trap "echo 'user interrupted.' && exit 1" INT
+
+OPENALPR_SRC_DIR="$HOME/work/lp/openalpr-t17"
+
 WORK_DIR=`pwd`/work
 GLOBAL_OUTDIR="$WORK_DIR/dependencies"
 INCLUDE_DIR=$GLOBAL_OUTDIR/include/openalpr
@@ -11,7 +16,7 @@ if [ -z "$OPENALPR_SRC_DIR" ]; then
   OPENALPR_SRC_DIR=$1 
 fi
 
-shift 
+[ ! -z "$@" ] && shift 
 
 if [ -z "$OPENALPR_SRC_DIR" ]; then 
   echo "You must either set OPENALPR_SRC_DIR or pass it as the first argument to this script."
@@ -46,13 +51,15 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
 
 # copy headers for consuming xcode project
 
-echo "Copying stub version.h file."
+#echo "Copying stub version.h file."
 
-cp etc/version.h $TARGET_DIR/openalpr/
+#cp etc/version.h $TARGET_DIR/openalpr/
 
 echo "Copying headers to $INCLUDE_DIR"
 
-mkdir $INCLUDE_DIR
+if [ ! -d "$INCLUDE_DIR" ]; then 
+  mkdir $INCLUDE_DIR
+fi
 
 rsync -av $@ $OPENALPR_SRC_DIR/src/ \
   --exclude=cmake_modules/  \
@@ -66,7 +73,9 @@ rsync -av $@ $OPENALPR_SRC_DIR/src/ \
 
 echo "Copying runtime data to $SHARE_DIR"
 
-mkdir -p $SHARE_DIR
+if [ ! -d "$SHARE_DIR" ]; then 
+  mkdir -p $SHARE_DIR
+fi
 
 rsync -av $@ $OPENALPR_SRC_DIR/runtime_data \
   $SHARE_DIR
