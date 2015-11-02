@@ -1,81 +1,19 @@
 require 'osx/plist'
-require_relative 'utils'
 
 module Alpr
   module Xcode
-    extend Utils
 
-    def build_settings(src_dir, header_search_paths=nil)
-      v = []
-      Find.find(File.join(src_dir, 'openalpr')) do |path|
-        if File.directory?(path) && !path.include?('support/windows')
-          v << path
-        end
-      end
-      if header_search_paths
-        v.concat(header_search_paths)
-      end
-      { 'HEADER_SEARCH_PATHS' => v }
+    def create_framework_skeleton(framework_dir, shallow=true)
+      shallow ? self.create_shallow_framework_skeleton(framework_dir) \
+        : self.create_deep_framework_skeleton(framework_dir)
     end
 
-    def find_version_definitions(plist)
-      self.build_settings_sections(plist).select do |id,ref|
-        vdefs = self.get_version_definitions(ref['buildSettings'])
-        return vdefs if !vdefs.empty?
-      end
+    # find openalpr.framework.bak -not -path "*runtime_data*" -type f -exec cp {} openalpr.framework/ \; && cp -r openalpr.framework.bak/Resources/runtime_data openalpr.framework/
+    def create_shallow_framework_skeleton(framework_dir)
+      FileUtils.mkdir_p(File.join(framework_dir, 'Headers'))
     end
 
-    def get_version_definitions(bs)
-      bs['GCC_PREPROCESSOR_DEFINITIONS'].select do |x|
-        x =~ /OPENALPR_.+_VERSION/
-      end
-    end
-
-    def build_settings_sections(plist)
-      plist['objects'].select do |id,ref|
-        ref['isa'] == "XCBuildConfiguration" && ref['buildSettings']
-      end
-    end
-
-    def patch_xcode_project!(pfile, src_dir, target, target_version, header_search_paths=nil, library_search_paths=nil)
-
-      if !File.exists?(pfile)
-        warn "File does not exist: #{pfile}"
-        return
-      end
-
-      plist = OSX::PropertyList.load(File.new(pfile))
-
-      self.build_settings_sections(plist).select do |id,ref|
-        #oldbs = ref['buildSettings']
-
-        #ref['buildSettings'].merge!(self.build_settings(src_dir, header_search_paths))
-
-        ref['buildSettings']['GCC_PREPROCESSOR_DEFINITIONS'] ||= []
-        if self.get_version_definitions(ref['buildSettings']).empty?
-          ref['buildSettings']['GCC_PREPROCESSOR_DEFINITIONS'] << self.find_version_definitions(plist)
-        end
-
-        #if !library_search_paths.nil?
-        #  ref['buildSettings']['LIBRARY_SEARCH_PATHS'] ||= []
-#
-#          if !ref['buildSettings']['LIBRARY_SEARCH_PATHS'].is_a?(Array)
-#            ref['buildSettings']['LIBRARY_SEARCH_PATHS'] =
-#              ref['buildSettings']['LIBRARY_SEARCH_PATHS'].split(/\s+/).reject { |x| x.nil? || x.empty? }
-#          end
-#
-#          ref['buildSettings']['LIBRARY_SEARCH_PATHS'].concat(library_search_paths)
-#        end
-      end
-
-      # writes to XML, does not support old plist format
-      OSX::PropertyList.dump_file(pfile, plist)
-
-      # re-convert to old plist format :(
-      log_execute("xcproj -p #{File.dirname(pfile)} touch")
-    end
-
-    def create_skeleton_alpr_framework(framework_dir)
+    def create_deep_framework_skeleton(framework_dir)
       # set the current dir to the dst root
       currdir = FileUtils.pwd()
       if File.directory?(framework_dir)
@@ -93,11 +31,37 @@ module Alpr
 
       # make symbolic links
       FileUtils.ln_s("A", "Versions/Current")
-      %w{Headers Libraries Resources openalpr}.each do |k|
+      %w{Headers Libraries Resources}.each do |k|
         FileUtils.ln_s("Versions/Current/#{k}", k)
       end
 
       return framework_dir
+    end
+
+    # pkg can be BNDL, FMWK
+    def create_framework_plist(name:, id:, version:, dest_dir:, pkg:'BNDL', executable:nil)
+      executable ||= name
+      OSX::PropertyList.dump_file(File.join(dest_dir, 'Info.plist'), {
+        'CFBundleName' => name,
+        'CFBundleIdentifier' => id,
+        'CFBundleShortVersionString' => version,
+        'CFBundleVersion' => version,
+        'CFBundleSignature' => '????',
+        'CFBundleExecutable' => executable,
+        'CFBundlePackageType' => pkg,
+      })
+    end
+
+    def get_framework_version(framework_path:)
+      plist_file = File.exists?(File.join(framework_path, 'Resources', 'Info.plist')) ?
+        File.join(framework_path, 'Resources', 'Info.plist') :
+        File.join(framework_path, 'Info.plist')
+
+      plist = OSX::PropertyList.load(File.read(plist_file))
+      if plist['CFBundleVersion'].nil?
+        raise "could not determine version in framework: #{framework_path}"
+      end
+      return plist['CFBundleVersion']
     end
 
   end

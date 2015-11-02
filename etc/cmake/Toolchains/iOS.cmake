@@ -1,4 +1,7 @@
-# https://code.google.com/p/ios-cmake/source/browse/toolchain/iOS.cmake
+# Based on this file: 
+# https://github.com/cristeab/ios-cmake/blob/master/toolchain/iOS.cmake
+
+#---------------------------------------------------------
 
 # This file is based off of the Platform/Darwin.cmake and Platform/UnixPaths.cmake
 # files which are included with CMake 2.8.4
@@ -6,7 +9,7 @@
 
 # Options:
 #
-# IOS_PLATFORM = OS (default) or SIMULATOR
+# IOS_PLATFORM = OS (default) or SIMULATOR or SIMULATOR64
 #   This decides if SDKS will be selected from the iPhoneOS.platform or iPhoneSimulator.platform folders
 #   OS - the default, used to build for iPhone and iPad physical devices, which have an arm arch.
 #   SIMULATOR - used to build for the Simulator platforms, which have an x86 arch.
@@ -49,8 +52,8 @@ endif (CMAKE_UNAME)
 
 # Force the compilers to gcc for iOS
 include (CMakeForceCompiler)
-CMAKE_FORCE_C_COMPILER (/usr/bin/clang Apple)
-CMAKE_FORCE_CXX_COMPILER (/usr/bin/clang++ Apple)
+CMAKE_FORCE_C_COMPILER (/usr/bin/gcc Apple)
+CMAKE_FORCE_CXX_COMPILER (/usr/bin/g++ Apple)
 set(CMAKE_AR ar CACHE FILEPATH "" FORCE)
 
 # Skip the platform compiler checks for cross compiling
@@ -72,7 +75,10 @@ set (CMAKE_CXX_OSX_CURRENT_VERSION_FLAG "${CMAKE_C_OSX_CURRENT_VERSION_FLAG}")
 
 # Hidden visibilty is required for cxx on iOS 
 set (CMAKE_C_FLAGS_INIT "")
-set (CMAKE_CXX_FLAGS_INIT "-fvisibility=hidden -fvisibility-inlines-hidden -isysroot ${CMAKE_OSX_SYSROOT}")
+# TODO: -fvisibility=hidden was causing openalpr breakage
+# as of commit 47865a8dc2225af86cb57f708452ce782827601b.
+#set (CMAKE_CXX_FLAGS_INIT "-fvisibility=hidden -fvisibility-inlines-hidden")
+set (CMAKE_CXX_FLAGS_INIT "-fvisibility-inlines-hidden")
 
 set (CMAKE_C_LINK_FLAGS "-Wl,-search_paths_first ${CMAKE_C_LINK_FLAGS}")
 set (CMAKE_CXX_LINK_FLAGS "-Wl,-search_paths_first ${CMAKE_CXX_LINK_FLAGS}")
@@ -98,6 +104,12 @@ if (NOT DEFINED IOS_PLATFORM)
 endif (NOT DEFINED IOS_PLATFORM)
 set (IOS_PLATFORM ${IOS_PLATFORM} CACHE STRING "Type of iOS Platform")
 
+# Setup building for arm64 or not
+if (NOT DEFINED BUILD_ARM64)
+    set (BUILD_ARM64 true)
+endif (NOT DEFINED BUILD_ARM64)
+set (BUILD_ARM64 ${BUILD_ARM64} CACHE STRING "Build arm64 arch or not")
+
 # Check the platform selection and setup for developer root
 if (${IOS_PLATFORM} STREQUAL "OS")
   set (IOS_PLATFORM_LOCATION "iPhoneOS.platform")
@@ -105,6 +117,13 @@ if (${IOS_PLATFORM} STREQUAL "OS")
   # This causes the installers to properly locate the output libraries
   set (CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos")
 elseif (${IOS_PLATFORM} STREQUAL "SIMULATOR")
+    set (SIMULATOR true)
+  set (IOS_PLATFORM_LOCATION "iPhoneSimulator.platform")
+
+  # This causes the installers to properly locate the output libraries
+  set (CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphonesimulator")
+elseif (${IOS_PLATFORM} STREQUAL "SIMULATOR64")
+    set (SIMULATOR true)
   set (IOS_PLATFORM_LOCATION "iPhoneSimulator.platform")
 
   # This causes the installers to properly locate the output libraries
@@ -144,11 +163,12 @@ set (CMAKE_IOS_SDK_ROOT ${CMAKE_IOS_SDK_ROOT} CACHE PATH "Location of the select
 set (CMAKE_OSX_SYSROOT ${CMAKE_IOS_SDK_ROOT} CACHE PATH "Sysroot used for iOS support")
 
 # set the architecture for iOS 
-# NOTE: Currently both ARCHS_STANDARD_32_BIT and ARCHS_UNIVERSAL_IPHONE_OS set armv7 only, so set both manually
 if (${IOS_PLATFORM} STREQUAL "OS")
-  set (IOS_ARCH armv6 armv7)
-else (${IOS_PLATFORM} STREQUAL "OS")
-  set (IOS_ARCH i386)
+    set (IOS_ARCH armv7 armv7s arm64)
+elseif (${IOS_PLATFORM} STREQUAL "SIMULATOR")
+    set (IOS_ARCH i386)
+elseif (${IOS_PLATFORM} STREQUAL "SIMULATOR64")
+    set (IOS_ARCH x86_64)
 endif (${IOS_PLATFORM} STREQUAL "OS")
 
 set (CMAKE_OSX_ARCHITECTURES ${IOS_ARCH} CACHE string  "Build architecture for iOS")
@@ -171,6 +191,41 @@ set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
 set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+################### Start OpenALPR customizations ######################
+
+# TODO: move to IOS specific block instead of opencv specific
+# http://stackoverflow.com/questions/822404/how-to-set-up-cmake-to-build-an-app-for-the-iphone 
+# "so that the product type generated would be com.apple.product-type.application instead of com.apple.product-type.tool"
+set(CMAKE_MACOSX_BUNDLE YES)
+
+SET(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework AssetsLibrary -framework CoreVideo -framework AVFoundation -framework CoreMedia -framework Foundation -framework UIKit -framework ImageIO")
+
+# https://public.kitware.com/Bug/view.php?id=15329
+message(STATUS "Disabling code signing for ALPR iOS framework")
+SET(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
+SET(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Don't Code Sign")
+
+# TODO: see if we can get rpath working on the cmake side 
+# instead of having to run install_name_tool later.
+#SET(MACOSX_RPATH ON)
+#SET(CMAKE_SKIP_BUILD_RPATH TRUE)
+#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+#SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\\\$ORIGIN/Libraries")
+
+SET(CMAKE_INSTALL_PREFIX install)
+SET(WITH_DAEMON OFF)
+SET(WITH_UTILITIES OFF)
+SET(WITH_BINDING_JAVA OFF)
+SET(WITH_BINDING_PYTHON OFF)
+#SET(WITH_GPU_DETECTOR OFF)
+SET(WITH_TESTS OFF)
+
+# These will be unused
+SET(CMAKE_INSTALL_SYSCONFDIR "etc")
+SET(CMAKE_INSTALL_VARDIR "var")
+
+#################### End OpenALPR customizations #######################
 
 # This little macro lets you set any XCode specific property
 macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
@@ -192,3 +247,4 @@ macro (find_host_package)
   set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 endmacro (find_host_package)
+

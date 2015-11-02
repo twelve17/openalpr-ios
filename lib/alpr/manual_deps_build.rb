@@ -14,17 +14,16 @@ require 'find'
 require 'logger'
 require 'osx/plist'
 require_relative 'core_build'
+require_relative 'gnu_make'
 require_relative 'utils'
 
 module Alpr
   class ManualDepsBuild < CoreBuild
+    include GnuMake
+    include Xcode
+    extend Utils
 
-    XCODE_DEVELOPER = "/Applications/Xcode.app/Contents/Developer"
-    XCODETOOLCHAIN = "#{XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain"
-    SDK_IPHONEOS = qexec("xcrun --sdk iphoneos --show-sdk-path")
-    SDK_IPHONESIMULATOR = qexec("xcrun --sdk iphonesimulator --show-sdk-path")
-
-    BUILD_PLATFORMS=%w{i386 armv7 armv7s arm64 x86_64}
+    #BUILD_PLATFORMS=%w{i386 armv7 armv7s arm64 x86_64}
 
     TESSERACT_HEADERS = %w{
       api/apitypes.h api/baseapi.h
@@ -40,56 +39,9 @@ module Alpr
     TESSERACT_LIB="tesseract-3.03"
     TESSERACT_LIB_URL='https://drive.google.com/uc?id=0B7l10Bj_LprhSGN2bTYwemVRREU&export=download'
 
-    CXX = xcfind("c++")
-    CC = xcfind("cc")
-    LD = xcfind("ld")
-    AS = xcfind("as")
-    NM = xcfind("nm")
-    RANLIB = xcfind("ranlib")
-
     protected
 
-    def opencv_framework_version
-      plist = OSX::PropertyList.load(File.read(File.join(self.opencv_framework_dir, 'Resources', 'Info.plist')))
-      if plist['CFBundleVersion'].nil?
-        raise "could not determine OpenCV version in framework: #{self.opencv_framework_dir}"
-      end
-      return plist['CFBundleVersion']
-    end
-
-    def alpr_cmake_args(target, arch)
-       tess_include_dir = File.join(self.framework_headers_dir)
-
-       target_dir = self.arch_build_dir(target, arch)
-
-       tess_include_dirs = %w{
-         Tesseract_INCLUDE_BASEAPI_DIR
-         Tesseract_INCLUDE_CCSTRUCT_DIR
-         Tesseract_INCLUDE_CCMAIN_DIR
-         Tesseract_INCLUDE_CCUTIL_DIR
-         Tesseract_INCLUDE_DIRS
-         Tesseract_PKGCONF_INCLUDE_DIRS
-       }.map do |k|
-         "-D#{k}=#{tess_include_dir}"
-       end
-       super(target).concat(tess_include_dirs).concat(
-         [
-          "-DTesseract_LIB=#{File.join(target_dir, 'libtesseract_all.a')}",
-          "-DLeptonica_LIB=#{File.join(target_dir, 'liblept.a')}",
-          "-DOpenCV_IOS_FRAMEWORK_PATH=#{self.opencv_framework_dir}",
-          "-DOpenCV_VERSION=#{self.opencv_framework_version}",
-          "-DOpenCV_VERSION_MAJOR=#{self.opencv_framework_version[0]}",
-        ]
-      )
-    end
-
-    def build_alpr(target, arch)
-      self.build_deps(target, arch)
-      self.configure_alpr_build(target, arch)
-      self.run_alpr_xcodebuild(target, arch)
-    end
-
-    #-----------------------------------------------------------------------------
+   #-----------------------------------------------------------------------------
     def build_deps(target, arch)
       if !self.built? || self.rebuild_deps
         self.download
@@ -99,35 +51,35 @@ module Alpr
       end
     end
 
-    # the alpr codebase includes opencv libs with the path prefix 'opencv2'
-    # (e.g. #include "opencv2/highgui/highgui.hpp").  we are going to create
-    # a second folder within the opencv2 framework that will include this path,
-    # linking back to the headers:
-    # HeadersForAlpr/opencv2 -> Headers
-    def patch_opencv_framework!(target, arch)
-      headers_dir_for_alpr = File.join(self.opencv_framework_dir, 'HeadersForAlpr')
-      if !File.directory?(headers_dir_for_alpr)
-        FileUtils.mkdir(headers_dir_for_alpr)
-      end
+#    # the alpr codebase includes opencv libs with the path prefix 'opencv2'
+#    # (e.g. #include "opencv2/highgui/highgui.hpp").  we are going to create
+#    # a second folder within the opencv2 framework that will include this path,
+#    # linking back to the headers:
+#    # HeadersForAlpr/opencv2 -> Headers
+#    def patch_opencv_framework!(target, arch)
+#      headers_dir_for_alpr = File.join(self.opencv_framework_dir, 'HeadersForAlpr')
+#      if !File.directory?(headers_dir_for_alpr)
+#        FileUtils.mkdir(headers_dir_for_alpr)
+#      end
+#
+#      link_target = File.join(headers_dir_for_alpr, 'opencv2')
+#      if !File.symlink?(link_target)
+#        puts "Adding opencv headers symlink: #{self.opencv_framework_headers_dir} -> #{link_target}"
+#        FileUtils.ln_s(self.opencv_framework_headers_dir, link_target)
+#      end
+#    end
+#
+#    def opencv_framework_dir
+#      File.join(self.dest_dir, 'opencv2.framework')
+#    end
 
-      link_target = File.join(headers_dir_for_alpr, 'opencv2')
-      if !File.symlink?(link_target)
-        puts "Adding opencv headers symlink: #{self.opencv_framework_headers_dir} -> #{link_target}"
-        FileUtils.ln_s(self.opencv_framework_headers_dir, link_target)
-      end
-    end
+#    def opencv_framework_lib_dir
+#      File.join(self.opencv_framework_dir, 'Versions', 'Current')
+#    end
 
-    def opencv_framework_dir
-      File.join(self.dest_dir, 'opencv2.framework')
-    end
-
-    def opencv_framework_lib_dir
-      File.join(self.opencv_framework_dir, 'Versions', 'Current')
-    end
-
-    def opencv_framework_headers_dir
-      File.join(self.opencv_framework_dir, 'Versions', 'Current', 'Headers')
-    end
+#    def opencv_framework_headers_dir
+#      File.join(self.opencv_framework_dir, 'Versions', 'Current', 'Headers')
+#    end
 
     #-----------------------------------------------------------------------------
     def leptonica_lib_dir
@@ -164,20 +116,6 @@ module Alpr
           raise "Missing source directory: #{src_dir}"
         end
       end
-    end
-
-    #-----------------------------------------------------------------------------
-    def cleanup_source
-      %w{clean distclean}.each { |t| log_execute("make #{t} || echo \"Nothing to #{t}\"") }
-    end
-
-    #-----------------------------------------------------------------------------
-    def do_standard_build(target, arch, build_args)
-      build_env = self.env_for_arch(target, arch)
-      if build_env['BUILD_HOST_NAME']
-        build_args.unshift("--host=#{build_env['BUILD_HOST_NAME']}")
-      end
-      log_execute("./configure #{build_args.join(' ')} && make -j12 2>&1", build_env)
     end
 
     #-----------------------------------------------------------------------------
@@ -221,59 +159,7 @@ module Alpr
       end
     end
 
-    #-----------------------------------------------------------------------------
-    def env_for_arch(target, arch)
-
-      sdk_root = arch.start_with?('arm') ? SDK_IPHONEOS : SDK_IPHONESIMULATOR
-      if !File.exists?(sdk_root)
-        raise "SDKROOT does not exist: #{sdk_root}"
-      end
-
-      cflags = [
-        "-I#{self.framework_headers_dir}",
-        "-arch #{arch}",
-        "-pipe",
-        "-no-cpp-precomp",
-        "-isysroot #{sdk_root}",
-        "-miphoneos-version-min=#{IOS_DEPLOY_TGT}",
-      ]
-      if arch.start_with?('arm')
-        cflags << "-I#{sdk_root}/usr/include/"
-      end
-      cflags = cflags.join(' ')
-
-      env = {
-        'SDKROOT' => sdk_root,
-        'CXX' => CXX,
-        'CC' => CC,
-        'LD' => LD,
-        'AS' => AS,
-        'AR' => AR,
-        'NM' => NM,
-        'RANLIB' => RANLIB,
-        'LDFLAGS' => "-L#{sdk_root}/usr/lib/ -L#{self.arch_build_dir(target, arch)}",
-        'CFLAGS' => cflags,
-        'CPPFLAGS' => cflags,
-        'CXXFLAGS' => cflags,
-        'PATH' => "#{XCODETOOLCHAIN}/usr/bin:#{ENV['PATH']}",
-      }
-
-      # TODO: do we need this?  clang complains about it
-      if arch.start_with?('arm')
-        env['BUILD_HOST_NAME'] = arch.sub(/^armv?(.+)/, 'arm-apple-darwin\1')
-      end
-
-      env
-    end
-
-    def merge_tesseract_libfiles(platform_output_dir, merged_lib_name)
-      lib_files = Find.find(platform_output_dir).select do |path|
-        File.basename(path) =~ /^lib.+\.a$/ || File.basename(path) !~ /liblept/
-      end
-      self.merge_libfiles(lib_files, platform_output_dir, merged_lib_name)
-    end
-
-    def put_framework_together
+    def post_dependency_build
       self.lipo_dependency_libs
     end
 
@@ -309,12 +195,11 @@ module Alpr
       log_execute('bash autogen.sh 2>&1', self.env_for_arch(target, arch))
       self.do_standard_build(target, arch, ["--enable-shared=no", "LIBLEPT_HEADERSDIR=#{File.join(self.framework_headers_dir, 'leptonica')}"])
 
-      lib_files = Find.find(self.tesseract_lib_dir).map do |path|
+      lib_files = Find.find(self.tesseract_lib_dir).select do |path|
         File.basename(path) =~ /^lib.+\.a$/ && !path.include?('arm')
         #  FileUtils.cp_r(path, self.arch_build_dir(target, arch))
       end
       self.merge_libfiles(lib_files, self.arch_build_dir(target, arch), 'libtesseract_all.a')
-      #FileUtils.cp_r(path, self.arch_build_dir(target, arch))
     end
 
      def install_leptonica_headers

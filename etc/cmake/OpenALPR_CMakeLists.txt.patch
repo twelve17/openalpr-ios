@@ -1,18 +1,19 @@
+diff --git a/.gitignore b/.gitignore
+index 85221c7..f9f1fd1 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -42,5 +42,6 @@ src.sln
+ Debug/
+ Release/
+ 
++*.sw*
+ 
+ cmake_install.cmake
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 2315658..bd44c96 100644
+index 512a5bb..d68e943 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -52,26 +52,62 @@ IF (WIN32 AND WITH_DAEMON)
-   SET(WITH_DAEMON OFF)
- ENDIF()
- 
--FIND_PACKAGE( Tesseract REQUIRED )
-+IF (OPENALPR_DEP_COCOA_PODS_PATH) 
-+  SET(Tesseract_INCLUDE_DIRS "${OPENALPR_DEP_COCOA_PODS_PATH}/TesseractOCRiOS/TesseractOCR/include")
-+  SET(Tesseract_LIBRARIES "${OPENALPR_DEP_COCOA_PODS_PATH}/TesseractOCRiOS/TesseractOCR/lib/liblept.a;${OPENALPR_DEP_COCOA_PODS_PATH}/TesseractOCRiOS/TesseractOCR/lib/libtesseract_all.a")
-+ELSE()
-+  FIND_PACKAGE(Tesseract REQUIRED)
-+ENDIF()
+@@ -56,22 +56,35 @@ FIND_PACKAGE( Tesseract REQUIRED )
  
  include_directories(${Tesseract_INCLUDE_DIRS})
  
@@ -25,33 +26,15 @@ index 2315658..bd44c96 100644
 -FIND_PACKAGE( OpenCV REQUIRED )
 -IF (${OpenCV_VERSION} VERSION_LESS 2.4.7)
 -	MESSAGE(FATAL_ERROR "OpenCV version is not compatible : ${OpenCV_VERSION}")
-+IF (OPENALPR_DEP_COCOA_PODS_PATH) 
-+
-+  SET(OpenCV_POD_Dir "${OPENALPR_DEP_COCOA_PODS_PATH}/OpenCV/opencv2.framework")
-+  MESSAGE(INFO "OpenCV CocoaPods dir: ${OpenCV_POD_Dir}")
-+
-+  SET(OpenCV_POD_Include_Dir "${OpenCV_POD_Dir}/openalpr_include")
-+  SET(OpenCV_INCLUDE_DIRS ${OpenCV_POD_Include_Dir})
-+
-+  SET(OpenCV_LIBS "${OPENALPR_DEP_COCOA_PODS_PATH}/OpenCV/opencv2.framework/opencv2")
-+
-+  SET(OpenCV_CONFIG_PATH "${OpenCV_POD_Dir}/Resources")
-+ELSEIF(OpenCV_IOS_FRAMEWORK_PATH)
++IF(OpenCV_IOS_FRAMEWORK_PATH)
 +  MESSAGE(INFO "Using OpenCV iOS framework: ${OpenCV_IOS_FRAMEWORK_PATH}")
 +
-+  # TODO: move to IOS specific block instead of opencv specific
-+  # http://stackoverflow.com/questions/822404/how-to-set-up-cmake-to-build-an-app-for-the-iphone 
-+  # "so that the product type generated would be com.apple.product-type.application instead of com.apple.product-type.tool"
-+  set(CMAKE_MACOSX_BUNDLE YES)
-+
++  # OpenCV's released framework has this disabled, 
++  # so we must too.
 +  # http://stackoverflow.com/a/32710441/868173
 +  SET(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
 +
-+  #SET(CMAKE_EXE_LINKER_FLAGS "-ObjC -framework CoreGraphics -framework QuartzCore -framework AssetsLibrary -framework CoreVideo -framework AVFoundation -framework CoreMedia -framework Foundation -framework UIKit -framework ImageIO -lopenalpr-static -lstatedetection -lvideo")
-+  SET(CMAKE_EXE_LINKER_FLAGS "-ObjC -framework CoreGraphics -framework QuartzCore -framework AssetsLibrary -framework CoreVideo -framework AVFoundation -framework CoreMedia -framework Foundation -framework UIKit -framework ImageIO -lopenalpr -lstatedetection -lvideo")
-+  #SET(CMAKE_EXE_LINKER_FLAGS " -ObjC ")
-+
-+  SET(OpenCV_INCLUDE_DIRS ${OpenCV_IOS_FRAMEWORK_PATH}/Headers)
++  SET(OpenCV_INCLUDE_DIRS ${OpenCV_IOS_FRAMEWORK_PATH}/HeadersForAlpr)
 +  SET(OpenCV_LIBS ${OpenCV_IOS_FRAMEWORK_PATH})
 +  SET(OpenCV_DIR ${OpenCV_IOS_FRAMEWORK_PATH}/Resources)
 +  SET(OpenCV_CONFIG_PATH ${OpenCV_IOS_FRAMEWORK_PATH}/Resources)
@@ -76,16 +59,65 @@ index 2315658..bd44c96 100644
  include_directories(./openalpr )
  
  IF (WIN32)
-@@ -195,3 +231,11 @@ CONFIGURE_FILE(
-   @ONLY)
+@@ -93,7 +106,10 @@ ENDIF()
  
- ADD_CUSTOM_TARGET(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+ 
+ set(CMAKE_CSS_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall ")
+-ADD_EXECUTABLE( alpr  main.cpp )
 +
-+IF (OPENALPR_DEP_COCOA_PODS_PATH)
-+  # Need to pass these to the custom target as ENV variables, as 
-+  # normal variables are not available to that target.
-+  #SET(ENV{OPENCV_POD_DIR} ${OpenCV_POD_Dir})
-+  #SET(ENV{OPENCV_POD_INCLUDE_DIR} ${OpenCV_POD_Include_Dir})
-+  ADD_CUSTOM_TARGET(cocoapod_setup COMMAND OPENCV_POD_DIR=${OpenCV_POD_Dir} OPENCV_POD_INCLUDE_DIR=${OpenCV_POD_Include_Dir} ${CMAKE_COMMAND} -P "${CMAKE_MODULE_PATH}/InstallCocoaPods.cmake")
++if (NOT IOS)
++  ADD_EXECUTABLE( alpr  main.cpp )
 +ENDIF()
-
+ 
+ if (WIN32) 
+    SET(OPENALPR_LIB openalpr-static)
+@@ -101,15 +117,17 @@ ELSE()
+    SET(OPENALPR_LIB openalpr)
+ ENDIF()
+ 
+-TARGET_LINK_LIBRARIES(alpr
+-	${OPENALPR_LIB}
+-	statedetection
+-	support
++if (NOT IOS)
++  TARGET_LINK_LIBRARIES(alpr
++    ${OPENALPR_LIB}
++    statedetection
++    support
+     video
+-	${OpenCV_LIBS}
+-	${Tesseract_LIBRARIES}
++    ${OpenCV_LIBS}
++    ${Tesseract_LIBRARIES}
+     ${Extra_LIBS}
+   )
++ENDIF()
+ 
+ # Compile the alprd library on Unix-based OS
+ IF (WITH_DAEMON)
+@@ -148,8 +166,10 @@ if (WITH_BINDING_PYTHON)
+ add_subdirectory(bindings/python)
+ ENDIF()
+ 
+-install (TARGETS    alpr DESTINATION   ${CMAKE_INSTALL_PREFIX}/bin)
+-install (FILES      ${CMAKE_SOURCE_DIR}/../doc/man/alpr.1 DESTINATION       ${CMAKE_INSTALL_PREFIX}/share/man/man1 COMPONENT doc)
++if (NOT IOS)
++  install (TARGETS    alpr DESTINATION   ${CMAKE_INSTALL_PREFIX}/bin)
++  install (FILES      ${CMAKE_SOURCE_DIR}/../doc/man/alpr.1 DESTINATION       ${CMAKE_INSTALL_PREFIX}/share/man/man1 COMPONENT doc)
++ENDIF(NOT IOS)
+ install (DIRECTORY  ${CMAKE_SOURCE_DIR}/../runtime_data DESTINATION         ${CMAKE_INSTALL_PREFIX}/share/openalpr)
+ 
+ # set runtime_data to reflect the current CMAKE_INSTALL_PREFIX
+diff --git a/src/statedetection/CMakeLists.txt b/src/statedetection/CMakeLists.txt
+index a7a3cdb..515798c 100644
+--- a/src/statedetection/CMakeLists.txt
++++ b/src/statedetection/CMakeLists.txt
+@@ -8,7 +8,7 @@ set(statedetector_source_files
+   state_detector_impl.cpp
+ )
+ 
+-if (WIN32) 
++if (WIN32 OR IOS) 
+ 	add_library(statedetection 		STATIC ${statedetector_source_files} )
+ ELSE()
+ 	add_library(statedetection 		SHARED ${statedetector_source_files} )

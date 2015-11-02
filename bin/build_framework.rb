@@ -3,15 +3,11 @@
 # Tested on Ruby 2.1.2
 
 require 'pry-byebug'
-require_relative '../lib/alpr'
+require_relative '../lib/alpr/dependency/core'
+require_relative '../lib/alpr/dependency/leptonica'
+require_relative '../lib/alpr/dependency/tesseract'
 require 'optparse'
-
-#-----------------------------------------------------------------------------
-#if ARGV[0].nil?
-#  puts "Usage:\n\t./build_framework.py <outputdir>\n"
-#  exit(0)
-#end
-
+require 'logger'
 
 options = {}
 OptionParser.new do |opts|
@@ -20,31 +16,43 @@ OptionParser.new do |opts|
   opts.on("-rd", "--[no-]rebuild-deps", "Force rebuild of dependencies") do |rd|
     options[:rebuild_deps] = rd
   end
-  opts.on("-m", "--dependency-method DM", "How to build dependencies. Must be :cocoapods or :manual") do |m|
-    options[:dep_build_method] = m
-  end
   opts.on("-d", "--dest-root DR", "Destination root directory") do |d|
     options[:dest_root] = d
   end
 end.parse!
 
-method = options.delete(:dep_build_method)
-method ||= 'manual'
+work_dir = File.join(File.expand_path(File.dirname(__FILE__)), '..', 'work')
 dest_root = options.delete(:dest_root)
-dest_root ||= File.expand_path(File.join(File.dirname(__FILE__), '..', 'output'))
+dest_root ||= File.join(File.expand_path(File.dirname(__FILE__)), '..', 'output')
+#dest_root ||= File.expand_path(File.join(File.dirname(__FILE__), '..', 'output'))
+log_file = File.join(work_dir, 'build.log')
 
-klass = nil
-if method == 'manual'
-  klass = Alpr::ManualDepsBuild
-elsif method == 'cocoapods'
-  klass = Alpr::CocoaPodsBuild
-else
-  raise "Invalid build method: #{method}"
-end
 
 puts "options: #{options}"
 
-klass.new(options).build_framework(dest_root)
+args = {
+  work_dir: work_dir,
+  target_dir: dest_root,
+  log_file: log_file,
+  logger: logger = Logger.new(log_file),
+  force: options[:rebuild_deps]
+}
+
+Alpr::Package::Leptonica.new.build_framework(args.merge(name: 'leptonica'))
+
+Alpr::Package::Tesseract.new(
+  leptonica_headers_dir: File.join(dest_root, 'leptonica.framework/Headers'),
+  leptonica_thin_lib_dir: File.join(work_dir, 'leptonica-thin-lib')
+).build_framework(args.merge(name: 'tesseract'))
+
+Alpr::Package::Alpr.new(
+  leptonica_framework_dir: File.join(dest_root, 'leptonica.framework'),
+  tesseract_framework_dir: File.join(dest_root, 'tesseract.framework'),
+  opencv_framework_dir: File.join(dest_root, 'opencv2.framework'),
+  leptonica_thin_lib_dir: File.join(work_dir, 'leptonica-thin-lib'),
+  tesseract_thin_lib_dir: File.join(work_dir, 'tesseract-thin-lib'),
+).build_framework(args.merge(name:'openalpr'))
+
 
   info = <<'END'
 The script builds OpenALPR.framework for iOS.
