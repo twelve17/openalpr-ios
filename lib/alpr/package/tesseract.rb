@@ -2,14 +2,20 @@ require_relative 'automake'
 require 'find'
 
 module Alpr::Package
-  class Tesseract < Alpr::Package::Automake
+  class Tesseract < Automake
 
     protected
 
-    attr_accessor :leptonica_thin_package_dir, :leptonica_headers_dir
+    attr_accessor :leptonica_thin_lib_dir, :leptonica_headers_dir
 
-    def initialize(leptonica_thin_package_dir:, leptonica_headers_dir:)
-      self.leptonica_thin_package_dir = leptonica_thin_package_dir
+    def initialize(
+      logger:,
+      log_file:,
+      leptonica_thin_lib_dir:,
+      leptonica_headers_dir:
+    )
+      super(logger: logger, log_file: log_file)
+      self.leptonica_thin_lib_dir = leptonica_thin_lib_dir
       self.leptonica_headers_dir = leptonica_headers_dir
     end
 
@@ -38,13 +44,6 @@ module Alpr::Package
       'https://drive.google.com/uc?id=0B7l10Bj_LprhSGN2bTYwemVRREU&export=download'
     end
 
-    def get_extra_configure_env
-      nil
-    #  {
-    #    "LIBLEPT_HEADERSDIR" => self.leptonica_headers_dir
-    #  }
-    end
-
     def get_configure_options
       ["--enable-shared=no"]
     end
@@ -67,12 +66,8 @@ module Alpr::Package
       'libtesseract_all.a'
     end
 
-#    def leptonica_framework_dir
-#      File.join(self.target_dir, '..', 'leptonica.framework')
-#    end
-
     def extra_libs_dir(target, arch)
-      File.join(self.leptonica_thin_package_dir, "#{target}-#{arch}")
+      File.join(self.leptonica_thin_lib_dir, "#{target}-#{arch}")
     end
 
     # Attempting to use the tesseract "LIBLEPT_HEADERSDIR"

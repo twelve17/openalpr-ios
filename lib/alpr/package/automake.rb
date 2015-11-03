@@ -1,13 +1,14 @@
-require_relative 'constants'
-require_relative 'utils'
+require_relative 'base'
+require_relative '../constants'
+require_relative '../utils'
 
 require 'find'
 
 module Alpr::Package
-  class Automake < Automake::Package::Base
-    include Constants
-    extend Utils
-    include Utils
+  class Automake < Base
+    include ::Alpr::Constants
+    include ::Alpr::Utils
+    extend ::Alpr::Utils
 
     protected
 
@@ -32,8 +33,8 @@ module Alpr::Package
       cleanup_source
 
       # TODO: obey 'force'
-      FileUtils.rm_rf(self.arch_build_dir(target, arch))
-      FileUtils.mkdir_p(self.arch_build_dir(target, arch))
+      FileUtils.rm_rf(self.thin_lib_dir(target, arch))
+      FileUtils.mkdir_p(self.thin_lib_dir(target, arch))
 
       do_autoconf_build(
         target: target,
@@ -45,14 +46,13 @@ module Alpr::Package
       )
 
       if self.target_merged_lib.nil?
-        FileUtils.cp(self.target_libs, self.arch_build_dir(target, arch))
+        FileUtils.cp(self.target_libs, self.thin_lib_dir(target, arch))
       else
-        self.merge_libfiles(self.target_libs, self.arch_build_dir(target, arch), self.target_merged_lib)
+        self.merge_libfiles(self.target_libs, self.thin_lib_dir(target, arch), self.target_merged_lib)
       end
     end
 
     private
-
     #-----------------------------------------------------------------------------
     def env_for_arch(target, arch, headers_dir, lib_dir)
 
@@ -84,7 +84,6 @@ module Alpr::Package
       end
       ldflags = ldflags.join(' ')
 
-
       env = {
         'SDKROOT' => sdk_root,
         'CXX' => CXX,
@@ -95,7 +94,6 @@ module Alpr::Package
         'NM' => NM,
         'RANLIB' => RANLIB,
         'LDFLAGS' => ldflags,
-        #'LDFLAGS' => "-L#{sdk_root}/usr/lib/ -L#{self.framework_lib_dir}",
         'CFLAGS' => cflags,
         'CPPFLAGS' => cflags,
         'CXXFLAGS' => cflags,
@@ -109,9 +107,9 @@ module Alpr::Package
 
       env
     end
-
     #-----------------------------------------------------------------------------
     def cleanup_source
+      binding.pry
       %w{clean distclean}.each { |t| log_execute("make #{t} || echo \"Nothing to #{t}\"") }
     end
 

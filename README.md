@@ -1,70 +1,48 @@
 openalpr-ios
 ============
 
-Xcode Framework for the [openalpr](https://github.com/openalpr/openalpr) library.
+A Ruby script that builds an Xcode project and a universal iOS static library framework for the [openalpr](https://github.com/openalpr/openalpr) library.  *As of this writing, this project is compatible with the github branch of OpenALPR, not the last 2.x release.*
 
-Because openalpr requires Tesseract 3.03, and, as of this writing, that version has not been released yet, it means that we cannot yet use the Tesseract [CocoaPod](http://cocoapods.org).  Instead, this module includes a bash script (based on [this one](http://stackoverflow.com/questions/12849517/c-linking-problems-seems-like-i-cant-link-against-standard-c-stuff)) that will compile universal Tesseract 3.03 and Leptonica 1.71 libraries, which can then be used to compile/link openalpr for iOS.
+Running the script will:
 
-It *[used to be](https://twitter.com/shexbeer/status/466644279667204096)* that getting openalpr working on iOS required that both [OpenCV](http://opencv.org) and [Tesseract](https://code.google.com/p/tesseract-ocr/) needed to be compiled with `libstdc++` instead of `libc++`.  **This is no longer the case.** OpenCV has more recently begun to be built with `libc++`, so it is possible to use it across the dependencies and in openalpr. (It *does* remain a requirement that the same library is used for all dependencies and openalpr.)
+- Download the OpenCV 3.0.0 framework binary release.
+- Dwonload and build universal Tesseract 3.03, Leptonica 1.71, and OpenALPR static library framework bundles from source.
+- Generate a OpenALPR Xcode project
 
-The basic steps to getting openalpr configured on XCode are:
+## Requirements
 
-- Clone this module, which includes a template XCode project for a openalpr library and Cocoa Touch Framework.
-- Run a script to build the dependencies
-- Configure your own XCode project that will use the openalpr Cocoa Touch Framework.
+- Mac OS X
+- Ruby 2.1.x
+  - [osx-plist](https://github.com/kballard/osx-plist) Ruby gem
+- Xcode and command line tools.  Tested with Xcode 7.1.
+- curl (seems to be installed by default on OS X)
 
-## Steps in Detail
-
-- Get openalpr source:
-  ```
-  # git clone https://github.com/openalpr/openalpr.git openalpr
-  ```
+## Installation
 
 - Clone this module:
+
   ```
   # git clone git@github.com:twelve17/openalpr-ios.git
   ```
 
-- From the top level `openalpr-ios` git folder, run the `sync_openalpr_source.sh` script, passing the path to whereyou cloned openalpr:
-  ```
-  # ./bin/sync_openalpr_source.sh ~/work/lp/openalpr
-  ```
- This script will do the following:
-   - Copy openalpr sources and headers to `openalpr-ios/openalpr-xcode/openalpr`, for use by the XCode project.
-   - Copy openalpr headers (only) to `openalpr-ios/work/dependencies/include/openalpr`, for use by your own XCode iOS application project.
-   - Copy openalpr `runtime_data` folder to `openalpr-ios/work/dependencies/share/openalpr`, for use by your own XCode iOS application project.
+- Run the `./bin/build_frameworks.rb` script.  By default, it will put all the frameworks under a subdirectory called `output`.  You can  pass an alternate path with the `-d` option.  Commands are logged to `work/build.log`.  Intermediate files are kept under the `work` subdirectory.
 
-- From the top level `openalpr-ios` git folder, run the `build_dependencies.sh` script.  
-  ```
-  # ./bin/build_dependencies.sh
-  ```
-  This will compile iOS compatible versions of Leptonica and Tesseract to the prefix `openalpr-ios/work/dependencies`
+## Usage 
 
-- The project uses the OpenCV CocoaPod instead of the iOS version from OpenCV site.  Install it via the `pod` command:  
-  ```
-  # cd openalpr-xcode
-  # pod install
-  ```
-  This will install the `OpenCV` dependency.
+### Xcode Linking To Frameworks
 
-- Open the openalpr-ios/openalpr-xcode XCode project as suggested by the CocoaPod docs:
-  ```
-  # open openalpr-xcode.xcworkspace
-  ```
-  - As of this writing, the latest openalpr revision was beea8923f6c4671170753b382cc598d76fbf38ff, and it required me to make a couple of manual changes:
-    1. Create a file called `version.h` in the `openalpr` folder (in same folder  `main.cpp` is in) to set a few variables that are required, like this:
-    ```
-    #define OPENALPR_MAJOR_VERSION "1"
-    #define OPENALPR_MINOR_VERSION "2"
-    #define OPENALPR_PATCH_VERSION "0"
-    ```
-    This module [includes a copy](https://github.com/twelve17/openalpr-ios/blob/master/etc/version.h) you can use.     The version numbers may be wrong on this file, so feel free to fix them.
+- In the Xcode project, select the `Frameworks` folder.  Then go to `Add Files` and add all four frameworks (leptonica, opencv, tesseract, openalpr) from the `output` directory.  Use the `Copy items if needed` option.  This should cause the project to add a framework search path to the project's build settings (e.g. `$(PROJECT_DIR)/YourProject`).  
+- Ensure that all four frameworks are included in the `Link Binary With Libraries` build phase.
+- The alpr library requires a config file (`openalpr.conf`) and a data folder (`runtime_data`), both of which are included in the framework, but must be configured to be copied to the application resources on the target.  Therefore, for each of these two, go to `Add Files` again, browse *into* the `openalpr.framework` bundle, and select each item.  Since these items are going to be copied into the app target, you can unselect `Copy items if needed`, and select `Create folder references`.
+- In the build settings, under `Build Options`, search for `Enable Bitcode` and set it to `No`.  This is needed because the opencv2 binary release is compiled without bitcode, and therefore the other frameworks built by this script are also built without it, which ultimately means the Xcode project codebase also cannot be built with bitcode enabled.
 
-## Using the openalpr-xcode Project In Your Own Project
+  - As of this writing, the latest openalpr commit on the master branch was `eecd41e097534f84e2669da24d4aed4bf75a1132`
+
+## Using the Xcode Project In Your Own Project
 
 - Go to `<Your Project>` → `Targets` → `<Project>` → `Build Settings`
   - Under `Header Search Paths`, add:
-  `/<path_to>/openalpr-ios/work/dependencies/include/openalpr`
+  `/<path_to>/output/openalpr.framework/include/openalpr`
 
 - In your project, create a group called `Resources`, below the root node.
   - While having the `openalpr-xcode` project open, browse to `Products`, then drag the `libopenalpr-xcode.a` library to your own project, into the `Resources` group created above.  This should cause a few other things to happen, but you should confirm this:
@@ -159,3 +137,16 @@ xxxxx  - openalpr-xcode -> Targets -> openalpr -> Build Phases
     - `$(PROJECT_DIR)/openalpr` (recursive)
     - `$(PROJECT_DIR)/../work/dependencies/include/` (non-recursive)
 
+
+Tips
+======
+
+- [Viewing iOS device logs](http://stackoverflow.com/a/31379741/868173)
+- Viewing symbols in library:
+nm -gUj  openalpr.framework/Libraries/libopenalpr-static.a | c++filt | less
+- Seeing errors in Simulator: tail -f ~/Library/Logs/CoreSimulator/*.log http://stackoverflow.com/a/26129829/868173
+
+# clean up xcode problems
+rm -rf "$(getconf DARWIN_USER_CACHE_DIR)/org.llvm.clang/ModuleCache"
+rm -rf ~/Library/Developer/Xcode/DerivedData
+rm -rf ~/Library/Caches/com.apple.dt.Xcode

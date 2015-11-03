@@ -1,7 +1,7 @@
-require_relative './alpr/cocoa_pods_build'
-require_relative './alpr/manual_deps_build'
-require_relative './alpr/xcode'
-require_relative './alpr/core_build'
+require_relative 'alpr/constants'
+require_relative 'alpr/package'
+require_relative 'alpr/utils'
+require_relative 'alpr/xcode'
 
 # Dir Strucures:
 #

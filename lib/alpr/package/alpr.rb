@@ -9,14 +9,25 @@ module Alpr::Package
     ALPR_CMAKE_TARGETS = %w{openalpr-static install}
     IOS_TOOLCHAIN_FILE = File.join(CONFIG_DIR, 'cmake', 'Toolchains', "iOS.cmake")
 
-    attr_accessor :opencv_framework_dir, :tesseract_framework_dir, :leptonica_framework_dir, :tesseract_thin_package_dir, :leptonica_thin_package_dir
+    attr_accessor :opencv_framework_dir, :tesseract_framework_dir, :leptonica_framework_dir, :tesseract_thin_lib_dir, :leptonica_thin_lib_dir
 
-    def initialize(opencv_framework_dir:, tesseract_framework_dir:, leptonica_framework_dir:, tesseract_thin_package_dir:, leptonica_thin_package_dir:)
+    def initialize(log_file:, logger:,
+                   opencv_framework_dir:,
+                   tesseract_framework_dir:,
+                   leptonica_framework_dir:,
+                   tesseract_thin_lib_dir:,
+                   leptonica_thin_lib_dir:
+                  )
+      super(log_file: log_file, logger: logger)
       self.opencv_framework_dir = opencv_framework_dir
       self.tesseract_framework_dir = tesseract_framework_dir
       self.leptonica_framework_dir = leptonica_framework_dir
-      self.tesseract_thin_package_dir = tesseract_thin_package_dir
-      self.leptonica_thin_package_dir = leptonica_thin_package_dir
+      self.tesseract_thin_lib_dir = tesseract_thin_lib_dir
+      self.leptonica_thin_lib_dir = leptonica_thin_lib_dir
+    end
+
+    def name
+      'openalpr'
     end
 
     def download
@@ -82,18 +93,8 @@ module Alpr::Package
       FileUtils.chdir(cmake_build_dir)
 
       # TODO: obey 'force'
-      FileUtils.rm_rf(self.arch_build_dir(target, arch))
-      FileUtils.mkdir_p(self.arch_build_dir(target, arch))
-
-      FileUtils.chdir(cmake_build_dir)
-
-      # TODO: can we make this work?
-      # if cmake cache exists, just rerun cmake to update OpenALPR.xcodeproj if necessary
-      #if File.file?(File.join(build_dir, "CMakeCache.txt"))
-      #  execute("cmake #{cmakeargs} ")
-      #else
-      #  binding.pry
-      #end
+      FileUtils.rm_rf(self.thin_lib_dir(target, arch))
+      FileUtils.mkdir_p(self.thin_lib_dir(target, arch))
 
       log_execute("cmake #{cmake_args(target,arch)} #{cmake_src_dir} 2>&1")
 
@@ -102,7 +103,7 @@ module Alpr::Package
         log_execute("xcodebuild #{xcodebuild_args(target, arch).push(cmake_target).join(" ")}")
       end
 
-      self.merge_libfiles(self.target_libs, self.arch_build_dir(target, arch), self.target_merged_lib)
+      self.merge_libfiles(self.target_libs, self.thin_lib_dir(target, arch), self.target_merged_lib)
     end
 
     def pre_build_setup
@@ -124,21 +125,21 @@ module Alpr::Package
     def cmake_args(target, arch)
       opencv_framework_version = self.get_framework_version(framework_path: self.opencv_framework_dir)
 
-      tess_include_vars = %w{
-         Tesseract_INCLUDE_BASEAPI_DIR
-         Tesseract_INCLUDE_CCSTRUCT_DIR
-         Tesseract_INCLUDE_CCMAIN_DIR
-         Tesseract_INCLUDE_CCUTIL_DIR
-         Tesseract_INCLUDE_DIRS
-         Tesseract_PKGCONF_INCLUDE_DIRS
-      }.map { |k| "-D#{k}=#{File.join(self.tesseract_framework_dir, 'Headers')}" }
+#      tess_include_vars = %w{
+#         Tesseract_INCLUDE_BASEAPI_DIR
+#         Tesseract_INCLUDE_CCSTRUCT_DIR
+#         Tesseract_INCLUDE_CCMAIN_DIR
+#         Tesseract_INCLUDE_CCUTIL_DIR
+#         Tesseract_INCLUDE_DIRS
+#         Tesseract_PKGCONF_INCLUDE_DIRS
+#      }.map { |k| "-D#{k}=#{File.join(self.tesseract_framework_dir, 'Headers')}" }
 
       [
         '-GXcode',
         "-DIOS_PLATFORM=#{CMAKE_IOS_PLATFORMS[arch]}",
         "-DCMAKE_TOOLCHAIN_FILE=#{IOS_TOOLCHAIN_FILE}",
-        "-DTesseract_LIB=#{File.join(self.tesseract_thin_package_dir, "#{target}-#{arch}", 'libtesseract_all.a')}",
-        "-DLeptonica_LIB=#{File.join(self.leptonica_thin_package_dir, "#{target}-#{arch}", 'liblept.a')}",
+        "-DTesseract_LIB=#{File.join(self.tesseract_thin_lib_dir, "#{target}-#{arch}", 'libtesseract_all.a')}",
+        "-DLeptonica_LIB=#{File.join(self.leptonica_thin_lib_dir, "#{target}-#{arch}", 'liblept.a')}",
         "-DOpenCV_IOS_FRAMEWORK_PATH=#{self.opencv_framework_dir}",
         "-DOpenCV_VERSION=#{opencv_framework_version}",
         "-DOpenCV_VERSION_MAJOR=#{opencv_framework_version[0]}",

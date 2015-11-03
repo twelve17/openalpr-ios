@@ -1,0 +1,6 @@
+require_relative 'package/alpr'
+require_relative 'package/automake'
+require_relative 'package/base'
+require_relative 'package/leptonica'
+require_relative 'package/opencv'
+require_relative 'package/tesseract'

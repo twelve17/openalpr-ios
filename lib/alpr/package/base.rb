@@ -1,5 +1,4 @@
 require_relative '../constants'
-require_relative '../gnu_make'
 require_relative '../utils'
 require_relative '../xcode'
 
@@ -10,9 +9,7 @@ module Alpr::Package
     include Alpr::Xcode
 
    #-----------------------------------------------------------------------------
-    def build_framework(name:, work_dir:, target_dir:, log_file:, logger:, force:)
-
-      self.name = name
+    def build_framework(work_dir:, target_dir:, force:)
 
       self.work_dir = work_dir
 
@@ -20,7 +17,7 @@ module Alpr::Package
         FileUtils.mkdir_p(work_dir)
       end
 
-      self.target_dir = File.join(target_dir, "#{name}.framework")
+      self.target_dir = File.join(target_dir, "#{self.name}.framework")
 
       self.log_file = log_file
       self.logger = logger
@@ -51,9 +48,16 @@ module Alpr::Package
 
     protected
 
-    attr_accessor :name, :work_dir, :target_dir, :log_file, :logger
+    attr_accessor :work_dir, :target_dir, :log_file, :logger
 
+    def initialize(logger:, log_file:)
+      self.logger = logger
+      self.log_file = log_file
+    end
+
+    #-----------------------------------------------------------------------------
     def rename_target_lib_as_executable
+      binding.pry
       FileUtils.chdir(self.target_dir)
       if target_lib_path
         logger.info("Moving #{self.target_merged_lib} as executable #{self.name}")
@@ -88,12 +92,15 @@ module Alpr::Package
       FileUtils.cp(self.target_headers, self.target_headers_dir)
     end
 
+    #-----------------------------------------------------------------------------
     def headers_installed?
       File.exists?(self.target_headers_dir)
     end
 
+    #-----------------------------------------------------------------------------
     def built?
-      self.headers_installed? && File.exists?(target_lib_path)
+      self.headers_installed? &&
+        File.exists?(File.join(self.target_dir, self.name))
     end
 
     #-----------------------------------------------------------------------------
@@ -101,18 +108,26 @@ module Alpr::Package
       File.join(self.work_dir, package_name)
     end
 
+    #-----------------------------------------------------------------------------
     def thin_lib_dest_root
       File.join(self.work_dir, self.name + '-thin-lib')
     end
 
-    def arch_build_dir(target, arch)
+    #-----------------------------------------------------------------------------
+    def thin_lib_dir(target, arch)
       File.join(self.thin_lib_dest_root, target + '-' + arch)
     end
 
+    #-----------------------------------------------------------------------------
     def target_headers_dir
       File.join(self.target_dir, 'Headers', self.name)
     end
 
+
+    #-----------------------------------------------------------------------------
+# can also return nil if package libs have not been compiled, as libs
+    # libs would not be there
+    #-----------------------------------------------------------------------------
     def target_lib_path
       if self.target_merged_lib
         return File.join(target_dir, target_merged_lib)
@@ -228,59 +243,75 @@ module Alpr::Package
     end
 
     #-----------------------------------------------------------------------------
-
     def pre_build_setup
       # NOOP
     end
 
+    #-----------------------------------------------------------------------------
     def post_build_setup
       # NOOP
     end
 
+    #-----------------------------------------------------------------------------
+    def name
+      self.class.name.split('::').last.downcase
+    end
+    #-----------------------------------------------------------------------------
     def build_arch(target, arch)
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def archive_name
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def package_name
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def package_version
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def archive_url
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def get_configure_options
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def do_autogen?
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def extra_headers_dir
       nil
     end
 
+    #-----------------------------------------------------------------------------
     def extra_libs_dir(target, arch)
       nil
     end
 
+    #-----------------------------------------------------------------------------
     def target_headers
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def target_libs
       raise "subclass must implement"
     end
 
+    #-----------------------------------------------------------------------------
     def target_merged_lib
       nil
     end

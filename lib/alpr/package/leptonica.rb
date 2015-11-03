@@ -1,7 +1,7 @@
 require_relative 'automake'
 
 module Alpr::Package
-  class Leptonica < Alpr::Package::Automake
+  class Leptonica < Automake
 
     protected
 
