@@ -11,18 +11,16 @@ require_relative 'alpr/xcode'
 # |    |- build.log
 # |    |- tesseract-x.y.z.tar.gz
 # |    |- tesseract-x.y.z
-# |    |- $openalpr_src_dir (optnalpr)
-# |    |- $lib_output_dir (lib)
+# |    |- $openalpr_src_dir (openalpr)
+# |    |- $lib_output_dir (leptonica-thin-lib, ...)
 #               |- per_arch_output
 
 # - $dest_root:
-#   |- Xcode
-#   |    |- Headers
-#   |    |- Libraries
-#   |    |- Resources
-#   |    |- openalpr
-#   |- openalpr.framework/
-#   |    |- <todo>
+#   |- src.xcodeproj
+#   |- opencv2.framework
+#   |- leptonica.framework
+#   |- openalpr.framework
+#   |- tesseract.framework
 
 module Alpr
 end
