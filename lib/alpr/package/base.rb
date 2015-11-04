@@ -10,14 +10,9 @@ module Alpr::Package
 
    #-----------------------------------------------------------------------------
     def install(work_dir:, dest_root:, force:)
-
       self.work_dir = work_dir
       self.dest_root = dest_root
-
       self.target_dir = File.join(dest_root, "#{self.name}.framework")
-
-      self.log_file = log_file
-      self.logger = logger
 
       if self.built? && !force
         message = "Package #{self.name} is already installed. Skipping build."

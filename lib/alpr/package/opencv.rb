@@ -10,10 +10,21 @@ module Alpr::Package
     def install(work_dir:, dest_root:, force:)
       self.work_dir = work_dir
       self.dest_root = dest_root
-      self.target_dir = File.join(dest_root, 'opencv2.framework')
+      self.target_dir = File.join(dest_root, "#{self.name}.framework")
 
-      # Unarchiving the opencv2 zip will create what would normally be
-      # the actual target_dir, so we do not need to create it manually.
+      if self.built? && !force
+        message = "Package #{self.name} is already installed. Skipping build."
+        self.logger.info(message)
+        puts message
+        return
+      end
+
+      [work_dir, dest_root].each do |dir|
+        if !File.directory?(dir)
+          FileUtils.mkdir_p(dir)
+        end
+      end
+      FileUtils.rm_rf(self.target_dir)
 
       self.download
       self.add_headers_symlink_hack
@@ -44,10 +55,10 @@ module Alpr::Package
 
     #-----------------------------------------------------------------------------
     # Since the unarchived contents of this package are also the installed
-    # contents, we go ahead and unarchive directly to the target_dir.
+    # contents, we go ahead and unarchive directly to the dest_root.
     #-----------------------------------------------------------------------------
     def package_dir
-      File.join(self.target_dir, package_name)
+      File.join(self.dest_root, package_name)
     end
 
     #-----------------------------------------------------------------------------
@@ -62,7 +73,7 @@ module Alpr::Package
       end
 
       if !File.exists?(self.package_dir)
-        log_execute("unzip -d #{self.target_dir} #{archive_path}")
+        log_execute("unzip -d #{self.dest_root} #{archive_path}")
       end
       # frameworks appear to be considered dirs
       if !File.directory?(self.package_dir)
@@ -75,7 +86,6 @@ module Alpr::Package
     # to emulate this path.
     #-----------------------------------------------------------------------------
     def add_headers_symlink_hack
-      binding.pry
       headers_dir = File.join(target_dir, 'Headers')
       link_path = File.join(headers_dir, 'opencv2')
       if !File.symlink?(link_path)
