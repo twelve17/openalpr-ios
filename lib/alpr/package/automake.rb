@@ -53,6 +53,7 @@ module Alpr::Package
     end
 
     private
+
     #-----------------------------------------------------------------------------
     def env_for_arch(target, arch, headers_dir, lib_dir)
 
@@ -109,7 +110,6 @@ module Alpr::Package
     end
     #-----------------------------------------------------------------------------
     def cleanup_source
-      binding.pry
       %w{clean distclean}.each { |t| log_execute("make #{t} || echo \"Nothing to #{t}\"") }
     end
 
