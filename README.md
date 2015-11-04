@@ -1,7 +1,7 @@
 openalpr-ios
 ============
 
-A Ruby script that builds an Xcode project and a universal iOS static library framework for the [openalpr](https://github.com/openalpr/openalpr) library.  *As of this writing, this project is compatible with the github branch of OpenALPR, not the last 2.x release.*
+A Ruby script that builds an Xcode project and a universal iOS static library framework for the [openalpr](https://github.com/openalpr/openalpr) library.  *As of this writing, this project is compatible with the 2.2.x release of OpenALPR and later.*
 
 Running the script will:
 
