@@ -198,20 +198,25 @@ set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 # "so that the product type generated would be com.apple.product-type.application instead of com.apple.product-type.tool"
 set(CMAKE_MACOSX_BUNDLE YES)
 
-SET(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework AssetsLibrary -framework CoreVideo -framework AVFoundation -framework CoreMedia -framework Foundation -framework UIKit -framework ImageIO")
+#SET(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework AssetsLibrary -framework CoreVideo -framework AVFoundation -framework CoreMedia -framework Foundation -framework UIKit -framework ImageIO")
+#SET(CMAKE_EXE_LINKER_FLAGS "-framework UIKit -framework ImageIO")
+
+#FIND_LIBRARY(IMAGE_IO_LIB ImageIO)
+#FIND_LIBRARY(UI_KIT_LIB UIKit)
+#FIND_LIBRARY(FOUNDATION_LIB Foundation)
+#FIND_LIBRARY(AV_FOUNDATION_LIB AVFoundation)
+#FIND_LIBRARY(CORE_MEDIA_LIB CoreMedia)
+#FIND_LIBRARY(CORE_VIDEO_LIB CoreVideo)
+#FIND_LIBRARY(ASSETS_LIB AssetsLibrary)
+#FIND_LIBRARY(QUARTZ_CORE_LIB QuartzCore)
+#FIND_LIBRARY(CORE_GRAPHICS_LIB CoreGraphics)
+#MARK_AS_ADVANCED(CORE_GRAPHICS_LIB)
+#SET(Extra_LIBS ${CORE_GRAPHICS_LIB})
 
 # https://public.kitware.com/Bug/view.php?id=15329
 message(STATUS "Disabling code signing for ALPR iOS framework")
 SET(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
 SET(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Don't Code Sign")
-
-# TODO: see if we can get rpath working on the cmake side 
-# instead of having to run install_name_tool later.
-#SET(MACOSX_RPATH ON)
-#SET(CMAKE_SKIP_BUILD_RPATH TRUE)
-#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-#SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-#SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\\\$ORIGIN/Libraries")
 
 SET(CMAKE_INSTALL_PREFIX install)
 SET(WITH_DAEMON OFF)

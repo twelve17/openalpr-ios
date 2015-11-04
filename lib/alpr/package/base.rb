@@ -9,46 +9,53 @@ module Alpr::Package
     include Alpr::Xcode
 
    #-----------------------------------------------------------------------------
-    def build_framework(work_dir:, target_dir:, force:)
+    def install(work_dir:, dest_root:, force:)
 
       self.work_dir = work_dir
+      self.dest_root = dest_root
 
-      if !File.directory?(work_dir)
-        FileUtils.mkdir_p(work_dir)
-      end
-
-      self.target_dir = File.join(target_dir, "#{self.name}.framework")
+      self.target_dir = File.join(dest_root, "#{self.name}.framework")
 
       self.log_file = log_file
       self.logger = logger
 
-      if !self.built? || force
-        FileUtils.rm_rf(self.target_dir)
-
-        self.create_framework_skeleton(self.target_dir)
-        self.download
-        self.install_headers
-        self.pre_build_setup
-        BUILD_TARGETS.each do |arch, target|
-          self.build_arch(target, arch)
-        end
-        self.lipo_libraries(self.thin_lib_dest_root, self.target_dir)
-        self.rename_target_lib_as_executable
-
-        self.create_framework_plist(
-          name: self.name,
-          id: self.name,
-          version: self.package_version,
-          dest_dir: self.target_dir
-        )
-
-        self.post_build_setup
+      if self.built? && !force
+        message = "Package #{self.name} is already installed. Skipping build."
+        self.logger.info(message)
+        puts message
+        return
       end
+
+      [work_dir, dest_root].each do |dir|
+        if !File.directory?(dir)
+          FileUtils.mkdir_p(dir)
+        end
+      end
+      FileUtils.rm_rf(self.target_dir)
+
+      self.create_framework_skeleton(self.target_dir)
+      self.download
+      self.install_headers
+      self.pre_build_setup
+      BUILD_TARGETS.each do |arch, target|
+        self.build_arch(target, arch)
+      end
+      self.lipo_libraries(self.thin_lib_dest_root, self.target_dir)
+      self.rename_target_lib_as_executable
+
+      self.create_framework_plist(
+        name: self.name,
+        id: self.name,
+        version: self.package_version,
+        dest_dir: self.target_dir
+      )
+
+      self.post_build_setup
     end
 
     protected
 
-    attr_accessor :work_dir, :target_dir, :log_file, :logger
+    attr_accessor :work_dir, :dest_root, :target_dir, :log_file, :logger
 
     def initialize(logger:, log_file:)
       self.logger = logger
@@ -57,11 +64,12 @@ module Alpr::Package
 
     #-----------------------------------------------------------------------------
     def rename_target_lib_as_executable
-      binding.pry
       FileUtils.chdir(self.target_dir)
       if target_lib_path
         logger.info("Moving #{self.target_merged_lib} as executable #{self.name}")
         FileUtils.mv(target_lib_path, self.name)
+        # this is so builds that depend on this one can find the lib
+        FileUtils.ln_s(self.name, File.basename(target_lib_path))
       else
         raise "Package installs more than one library. Cannot install single executable for framework."
       end
@@ -196,48 +204,6 @@ module Alpr::Package
         lipoResult=`xcrun -sdk iphoneos lipo #{lipo_args} -create -output #{fat_lib} 2>&1`
         if lipoResult =~ /fatal error/
           raise "Got fatal error during LIPO: #{lipoResult}"
-        end
-      end
-    end
-
-    # http://www.opensource.apple.com/source/subversion/subversion-52/rpath_subversion.sh
-    # see also:
-    # http://stackoverflow.com/questions/26001321/application-with-private-framework-could-not-inspect-application-package-in-xc
-    # http://stackoverflow.com/questions/26015194/xcode-could-not-inspect-the-application-package
-    # http://stackoverflow.com/questions/14630828/could-not-inspect-application-package-xcode/14631281#14631281
-    #
-    #
-    # https://developer.apple.com/library/mac/technotes/tn2206/_index.html#//apple_ref/doc/uid/DTS40007919-CH1-TNTAG205
-    # https://github.com/kstenerud/iOS-Universal-Framework/issues/76
-    # http://stackoverflow.com/questions/25632886/an-error-was-encountered-while-running-domain-launchserviceserror-code-0
-    #
-    #
-    # http://www.raywenderlich.com/65964/create-a-framework-for-ios
-    # http://stackoverflow.com/questions/31295369/ld-framework-not-found-parse-xcode-7-beta
-    # https://techblog.badoo.com/blog/2015/02/09/code-signing-and-distributing-swift/
-    #
-    # https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/20001431-101909
-    def update_rpath(libs:, dest_base_path:nil)
-      dest_base_path ||= File.join('@executable_path')
-      libs.each do |lib|
-        old_name = `otool -D "#{lib}" | sed "1d"`.strip
-
-        # oof, it points to the lib in the original build dir:
-        # openalpr/src/build/openalpr/Release-iphonesimulator/libopenalpr.2.dylib"
-        #new_name = File.join('@rpath', File.basename(old_name))
-        #new_name = File.join('@executable_path', File.basename(old_name))
-        #new_name = File.join('@executable_path/../Frameworks', File.basename(old_name))
-        # based on: http://stackoverflow.com/a/28401662/868173
-        #new_name = File.join('@executable_path','Frameworks', 'openalpr.framework','Libraries', File.basename(old_name))
-        #new_name = File.join('@executable_path','Frameworks', 'openalpr.framework', File.basename(old_name))
-        new_name = File.join(dest_base_path, File.basename(old_name))
-
-        # fix LC_ID_DYLIB
-        log_execute("install_name_tool -id \"#{new_name}\" #{lib}")
-
-        # fix LC_LOAD_DYLIB entries in other binaries
-        libs.each do |ref_lib|
-          log_execute("install_name_tool -change \"#{old_name}\" \"#{new_name}\" \"#{ref_lib}\"")
         end
       end
     end

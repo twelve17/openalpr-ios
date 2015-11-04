@@ -58,7 +58,7 @@ module Alpr::Package
 
     def target_libs
       Find.find(self.package_dir).select do |path|
-        File.basename(path) =~ /^lib.+\.a$/ #&& !path.include?('arm')
+        File.basename(path) =~ /^lib.+\.a$/
       end
     end
 

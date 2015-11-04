@@ -6,17 +6,17 @@
 module Alpr::Package
   class Opencv < Base
 
-   #-----------------------------------------------------------------------------
-    def build_framework(work_dir:, target_dir:, force:)
+    #-----------------------------------------------------------------------------
+    def install(work_dir:, dest_root:, force:)
       self.work_dir = work_dir
-      self.target_dir = target_dir #File.join(target_dir, "#{self.name}.framework")
+      self.dest_root = dest_root
+      self.target_dir = File.join(dest_root, 'opencv2.framework')
 
-     if !File.directory?(target_dir)
-        FileUtils.mkdir_p(target_dir)
-      end
+      # Unarchiving the opencv2 zip will create what would normally be
+      # the actual target_dir, so we do not need to create it manually.
 
-      FileUtils.chdir(target_dir)
       self.download
+      self.add_headers_symlink_hack
     end
 
     protected
@@ -43,22 +43,47 @@ module Alpr::Package
     end
 
     #-----------------------------------------------------------------------------
-    def download
-      do_in_dir(self.target_dir) do
+    # Since the unarchived contents of this package are also the installed
+    # contents, we go ahead and unarchive directly to the target_dir.
+    #-----------------------------------------------------------------------------
+    def package_dir
+      File.join(self.target_dir, package_name)
+    end
 
-        if File.exists?(self.package_dir)
-          puts "Package #{self.name} already installed"
-        else
-          binding.pry
-          puts "Downloading #{self.name} library."
-          log_execute("curl -L -o #{self.package_dir} #{self.archive_url}")
-          # frameworks don't appear as dirs
-          if !File.exists?(self.package_dir)
-            log_execute("unzip #{self.package_dir}")
-          end
-          if !File.exists?(self.package_dir)
-            raise "Missing #{self.name} source directory: #{self.package_dir}"
-          end
+    #-----------------------------------------------------------------------------
+    def download
+      archive_path = File.join(self.work_dir, self.archive_name)
+
+      if File.exists?(archive_path)
+        puts "Package #{self.name} already downloaded"
+      else
+        puts "Downloading #{self.name} library."
+        log_execute("curl -L -o #{archive_path} #{self.archive_url}")
+      end
+
+      if !File.exists?(self.package_dir)
+        log_execute("unzip -d #{self.target_dir} #{archive_path}")
+      end
+      # frameworks appear to be considered dirs
+      if !File.directory?(self.package_dir)
+        raise "Missing #{self.name} framework bundle: #{self.package_dir}"
+      end
+    end
+
+    #-----------------------------------------------------------------------------
+    # openalpr looks for the headers with a path of 'opencv2/*'. Create a symlink
+    # to emulate this path.
+    #-----------------------------------------------------------------------------
+    def add_headers_symlink_hack
+      binding.pry
+      headers_dir = File.join(target_dir, 'Headers')
+      link_path = File.join(headers_dir, 'opencv2')
+      if !File.symlink?(link_path)
+        msg = "adding opencv2 headers symlink hack: #{link_path} -> #{headers_dir}"
+        puts msg
+        logger.info(msg)
+        do_in_dir(headers_dir) do
+          FileUtils.ln_s('../Headers', 'opencv2')
         end
       end
     end

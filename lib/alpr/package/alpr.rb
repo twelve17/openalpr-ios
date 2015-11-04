@@ -9,21 +9,17 @@ module Alpr::Package
     ALPR_CMAKE_TARGETS = %w{openalpr-static install}
     IOS_TOOLCHAIN_FILE = File.join(CONFIG_DIR, 'cmake', 'Toolchains', "iOS.cmake")
 
-    attr_accessor :opencv_framework_dir, :tesseract_framework_dir, :leptonica_framework_dir, :tesseract_thin_lib_dir, :leptonica_thin_lib_dir
+    attr_accessor :opencv_framework_dir, :tesseract_framework_dir, :leptonica_framework_dir
 
     def initialize(log_file:, logger:,
                    opencv_framework_dir:,
                    tesseract_framework_dir:,
-                   leptonica_framework_dir:,
-                   tesseract_thin_lib_dir:,
-                   leptonica_thin_lib_dir:
+                   leptonica_framework_dir:
                   )
       super(log_file: log_file, logger: logger)
       self.opencv_framework_dir = opencv_framework_dir
       self.tesseract_framework_dir = tesseract_framework_dir
       self.leptonica_framework_dir = leptonica_framework_dir
-      self.tesseract_thin_lib_dir = tesseract_thin_lib_dir
-      self.leptonica_thin_lib_dir = leptonica_thin_lib_dir
     end
 
     def name
@@ -112,10 +108,9 @@ module Alpr::Package
 
     def post_build_setup
       install_resources
-      #self.update_rpath(self.target_dir
     end
 
-    # TODO: make this the default in Base class
+    # TODO: make this the default in Base class?
     def target_headers_dir
       File.join(self.target_dir, 'Headers')
     end
@@ -124,31 +119,22 @@ module Alpr::Package
 
     def cmake_args(target, arch)
       opencv_framework_version = self.get_framework_version(framework_path: self.opencv_framework_dir)
-
-#      tess_include_vars = %w{
-#         Tesseract_INCLUDE_BASEAPI_DIR
-#         Tesseract_INCLUDE_CCSTRUCT_DIR
-#         Tesseract_INCLUDE_CCMAIN_DIR
-#         Tesseract_INCLUDE_CCUTIL_DIR
-#         Tesseract_INCLUDE_DIRS
-#         Tesseract_PKGCONF_INCLUDE_DIRS
-#      }.map { |k| "-D#{k}=#{File.join(self.tesseract_framework_dir, 'Headers')}" }
-
       [
         '-GXcode',
         "-DIOS_PLATFORM=#{CMAKE_IOS_PLATFORMS[arch]}",
-        "-DCMAKE_TOOLCHAIN_FILE=#{IOS_TOOLCHAIN_FILE}",
-        "-DTesseract_LIB=#{File.join(self.tesseract_thin_lib_dir, "#{target}-#{arch}", 'libtesseract_all.a')}",
-        "-DLeptonica_LIB=#{File.join(self.leptonica_thin_lib_dir, "#{target}-#{arch}", 'liblept.a')}",
+        "-DLeptonica_IOS_FRAMEWORK_PATH=#{self.leptonica_framework_dir}",
+        "-DTesseract_IOS_FRAMEWORK_PATH=#{self.tesseract_framework_dir}",
         "-DOpenCV_IOS_FRAMEWORK_PATH=#{self.opencv_framework_dir}",
         "-DOpenCV_VERSION=#{opencv_framework_version}",
         "-DOpenCV_VERSION_MAJOR=#{opencv_framework_version[0]}",
-      ].concat(tess_include_vars).join(" ")
+        "-DCMAKE_TOOLCHAIN_FILE=#{IOS_TOOLCHAIN_FILE}",
+      ].join(" ")
     end
 
     def install_resources
       FileUtils.cp_r("#{self.package_dir}/runtime_data", self.target_dir)
       FileUtils.cp("#{cmake_build_dir}/config/openalpr.conf", self.target_dir)
+      FileUtils.cp_r("#{cmake_build_dir}/src.xcodeproj", self.dest_root)
     end
 
     def xcodebuild_args(target, arch)

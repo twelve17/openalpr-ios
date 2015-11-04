@@ -38,30 +38,28 @@ args = {
 
 build_args = {
   work_dir: work_dir,
-  target_dir: dest_root,
+  dest_root: dest_root,
   force: options[:rebuild_deps]
 }
 
-Alpr::Package::Opencv.new(args).build_framework(build_args)
+Alpr::Package::Opencv.new(args).install(build_args)
 
-Alpr::Package::Leptonica.new(args).build_framework(build_args)
+Alpr::Package::Leptonica.new(args).install(build_args)
 
 Alpr::Package::Tesseract.new(
   args.merge(
     leptonica_headers_dir: File.join(dest_root, 'leptonica.framework/Headers'),
     leptonica_thin_lib_dir: File.join(work_dir, 'leptonica-thin-lib')
   )
-).build_framework(build_args)
+).install(build_args)
 
 Alpr::Package::Alpr.new(
   args.merge(
     opencv_framework_dir: File.join(dest_root, 'opencv2.framework'),
     leptonica_framework_dir: File.join(dest_root, 'leptonica.framework'),
-    leptonica_thin_lib_dir: File.join(work_dir, 'leptonica-thin-lib'),
     tesseract_framework_dir: File.join(dest_root, 'tesseract.framework'),
-    tesseract_thin_lib_dir: File.join(work_dir, 'tesseract-thin-lib'),
   )
-).build_framework(build_args)
+).install(build_args)
 
 
   info = <<'END'
