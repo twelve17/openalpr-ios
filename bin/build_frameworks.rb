@@ -11,8 +11,8 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{__FILE__} [options]"
 
-  opts.on("-rd", "--[no-]rebuild-deps", "Force rebuild of dependencies") do |rd|
-    options[:rebuild_deps] = rd
+  opts.on("-f", "--eps", "Force rebuild of packages even if they are already installed.") do |f|
+    options[:force] = f
   end
   opts.on("-d", "--dest-root DR", "Destination root directory") do |d|
     options[:dest_root] = d
@@ -39,7 +39,7 @@ args = {
 build_args = {
   work_dir: work_dir,
   dest_root: dest_root,
-  force: options[:rebuild_deps]
+  force: options[:force]
 }
 
 Alpr::Package::Opencv.new(args).install(build_args)

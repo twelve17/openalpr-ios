@@ -4,6 +4,8 @@ require_relative '../utils'
 
 require 'find'
 
+# Based on:
+# http://tinsuke.wordpress.com/2011/11/01/how-to-compile-and-use-tesseract-3-01-on-ios-sdk-5/
 module Alpr::Package
   class Automake < Base
     include ::Alpr::Constants
