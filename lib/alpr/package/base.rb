@@ -1,3 +1,20 @@
+#==============================================================================
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#==============================================================================
+
 require_relative '../constants'
 require_relative '../utils'
 require_relative '../xcode'
@@ -8,7 +25,7 @@ module Alpr::Package
     include Alpr::Utils
     include Alpr::Xcode
 
-   #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     def install(work_dir:, dest_root:, force:)
       self.work_dir = work_dir
       self.dest_root = dest_root
@@ -126,9 +143,8 @@ module Alpr::Package
       File.join(self.target_dir, 'Headers', self.name)
     end
 
-
     #-----------------------------------------------------------------------------
-# can also return nil if package libs have not been compiled, as libs
+    # can also return nil if package libs have not been compiled, as libs
     # libs would not be there
     #-----------------------------------------------------------------------------
     def target_lib_path
