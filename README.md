@@ -45,7 +45,7 @@ To disable bitcode in your project:
 - In Xcode, open your project.  Then go to `Add Files` and add all four frameworks (leptonica, opencv, tesseract, openalpr) from the `output` directory.  Use the `Copy items if needed` option.  This should cause the project to add a framework search path to the project's build settings (e.g. `$(PROJECT_DIR)`).  
 - Ensure that all four frameworks are included in the `Link Binary With Libraries` build phase.
 - The alpr library requires a config file (`openalpr.conf`) and a data folder (`runtime_data`), both of which are included in the framework, but must be copied to the application resources:
-  - Select your project on the project navigator, then, on the main pane, go to `Targets` → `AlprSample` → `Build Phases` → `Copy Bundle Resources`, and click on the `+`.  
+  - Select your project on the project navigator, then, on the main pane, go to `Targets` → `<Your Project>` → `Build Phases` → `Copy Bundle Resources`, and click on the `+`.  
   - Select `Add Other...`
   - Browse *into* the `openalpr.framework` bundle, and command-select both `runtime_data` and `openalpr.conf`.  Unselect `Copy items if needed` and select `Create folder references`.
 
@@ -59,8 +59,13 @@ To run the app, you will need to build the frameworks with `build_frameworks.rb`
 2. Edit `ViewController.mm` and change the value of `plateFilename` to the name of the file you added in step 1, e.g. `NSString *plateFilename = @"license_plate.jpg";`
 3. Link the project to the dependency frameworks and add the required resources per the "Linking To Frameworks" section above.
 
+## Misc Notes
 
-## AlprSample Creation
+### Dynamic Library?
+
+I initially attempted to build dynamic libraries, since they are supported as of iOS 9.  It required me to update the `rpath` of the dynamic libraries.  Then the frameworks must be embedded into the application.  However, even after doing that, I ran into odd run-time errors where the libopenalpr.dylib library could not load the statedetection library.  PRs welcome!
+
+### AlprSample Creation
 
 Steps for creating the app are kept here for posterity.
 
@@ -71,13 +76,7 @@ Steps for creating the app are kept here for posterity.
 - Disable bitcode per the "Bitcode" section above.
 - Link the project to the dependency frameworks and add the required resources per the "Linking To Frameworks" section above.
 
-
-## Credits
-
-- Tesseract and Leptonica install code based [on this script](http://tinsuke.wordpress.com/2011/11/01/how-to-compile-and-use-tesseract-3-01-on-ios-sdk-5/).
-- iOS.cmake toolchain file based [on this one](https://github.com/cristeab/ios-cmake/blob/master/toolchain/iOS.cmake).
-
-## Tips
+### Tips
 
 - [Viewing iOS device logs](http://stackoverflow.com/a/31379741/868173)
 - Viewing symbols in library:
@@ -91,3 +90,10 @@ Steps for creating the app are kept here for posterity.
     rm -rf ~/Library/Developer/Xcode/DerivedData
     rm -rf ~/Library/Caches/com.apple.dt.Xcode
     ```
+
+
+## Credits
+
+- Tesseract and Leptonica install code based [on this script](http://tinsuke.wordpress.com/2011/11/01/how-to-compile-and-use-tesseract-3-01-on-ios-sdk-5/).
+- iOS.cmake toolchain file based [on this one](https://github.com/cristeab/ios-cmake/blob/master/toolchain/iOS.cmake).
+
