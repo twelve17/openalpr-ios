@@ -139,9 +139,9 @@ module Alpr::Package
       [
         '-GXcode',
         "-DIOS_PLATFORM=#{CMAKE_IOS_PLATFORMS[arch]}",
-        "-DLeptonica_IOS_FRAMEWORK_PATH=#{self.leptonica_framework_dir}",
-        "-DTesseract_IOS_FRAMEWORK_PATH=#{self.tesseract_framework_dir}",
-        "-DOpenCV_IOS_FRAMEWORK_PATH=#{self.opencv_framework_dir}",
+        "-DLeptonica_FRAMEWORK_PATH=#{self.leptonica_framework_dir}",
+        "-DTesseract_FRAMEWORK_PATH=#{self.tesseract_framework_dir}",
+        "-DOpenCV_FRAMEWORK_PATH=#{self.opencv_framework_dir}",
         "-DOpenCV_VERSION=#{opencv_framework_version}",
         "-DOpenCV_VERSION_MAJOR=#{opencv_framework_version[0]}",
         "-DCMAKE_TOOLCHAIN_FILE=#{IOS_TOOLCHAIN_FILE}",
