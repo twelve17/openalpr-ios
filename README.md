@@ -5,7 +5,7 @@ A Ruby script that builds an Xcode project and a universal iOS static library fr
 
 Running the script will:
 
-- Download the OpenCV 3.0.0 framework binary release and symlink the headers diretory so that the OpenALPR code will see them.
+- Download the OpenCV 3.0.0 framework binary release and symlink the headers directory so that the OpenALPR code will see them.
 - Download and build universal Tesseract 3.03, Leptonica 1.71, and OpenALPR static library framework bundles from source.
 - Generate a OpenALPR Xcode project
 
