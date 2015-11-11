@@ -15,8 +15,7 @@ Running the script will:
 - Ruby 2.1.x
   - [osx-plist](https://github.com/kballard/osx-plist) Ruby gem
 - Xcode and command line tools.  Tested with Xcode 7.1.
-- curl (seems to be installed by default on OS X)
-- git
+- curl, tar, unzip, git (seems to be installed by default on OS X)
 
 As of this writing, the latest openalpr commit on the master branch was `eecd41e097534f84e2669da24d4aed4bf75a1132`
 
@@ -34,7 +33,7 @@ As of this writing, the latest openalpr commit on the master branch was `eecd41e
 
 ### Bitcode
 
-Because the opencv2 binary release is compiled without bitcode, the other frameworks built by this script are also built without it, which ultimately means your Xcode project  also cannot be built with bitcode enabled.  [Per this message](http://stackoverflow.com/a/32728516/868173), it sounds like we want this feature disabled for OpenCV anyway.  
+Because the OpenCV binary framework release is compiled without bitcode, the other frameworks built by this script are also built without it, which ultimately means your Xcode project  also cannot be built with bitcode enabled.  [Per this message](http://stackoverflow.com/a/32728516/868173), it sounds like we want this feature disabled for OpenCV anyway.  
 
 To disable bitcode in your project:
 
