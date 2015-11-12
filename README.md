@@ -12,7 +12,7 @@ Running the script will:
 ## Requirements
 
 - Mac OS X
-- Ruby 2.1.x and the following Gems:
+- Ruby 2.1.x and the following Gems (provided by bundler):
   - [osx-plist](https://github.com/kballard/osx-plist)
   - [logger](https://rubygems.org/gems/logger/)
   - [pry-byebug](https://rubygems.org/gems/pry-byebug)
@@ -29,7 +29,8 @@ As of this writing, the latest openalpr commit on the master branch was `eecd41e
   # git clone git@github.com:twelve17/openalpr-ios.git
   ```
 
-- Run the `./bin/build_frameworks.rb` script.  By default, it will put all the frameworks under a subdirectory called `output`.  You can  pass an alternate path with the `-d` option.  Intermediate files are kept under the `work` subdirectory, including a log called `build.log` which you can inspect for errors.
+- Install dependencies: `bundle install`
+- Run `bundle exec ./bin/build_frameworks.rb`.  By default, it will put all the frameworks under a subdirectory called `output`.  You can  pass an alternate path with the `-d` option.  Intermediate files are kept under the `work` subdirectory, including a log called `build.log` which you can inspect for errors.
 
 ## Usage 
 
@@ -52,13 +53,14 @@ To disable bitcode in your project:
 
 ## AlprSample App
 
-You can use the `AlprSample` app included in this project to test your installation.  It has one view that simply presents a fixed (pre-selected) license place image, and a table view below it showing scanned plate values for that image.
+You can use the `AlprSample` app included in this project to test your installation.  It has one view that simply presents a fixed (pre-selected) license plate image, and a table view below it showing scanned plate values for that image.
 
 To run the app, you will need to build the frameworks with `build_frameworks.rb`.  Then, in Xcode, open the project and follow these steps:
 
 1. Find a plate image file you wish to test with and add it to the project.  
 2. Edit `ViewController.mm` and change the value of `plateFilename` to the name of the file you added in step 1, e.g. `NSString *plateFilename = @"license_plate.jpg";`
 3. Link the project to the dependency frameworks and add the required resources per the "Linking To Frameworks" section above.
+4. Run the app!  The library should work in a simulator.
 
 ## Misc Notes
 
@@ -82,7 +84,7 @@ Steps for creating the app are kept here for posterity.
 - [Viewing iOS device logs](http://stackoverflow.com/a/31379741/868173)
 - Viewing symbols in library:
   `nm -gUj  openalpr.framework/Libraries/libopenalpr-static.a | c++filt`
-- [Seeing errors in Simulator](http://stackoverflow.com/a/26129829/868173):
+- [Inspecting the Simulator logs](http://stackoverflow.com/a/26129829/868173):
   `tail -f ~/Library/Logs/CoreSimulator/*.log`
 - clean up temporary Xcode items
 

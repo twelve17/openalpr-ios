@@ -1,0 +1,27 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    byebug (8.2.0)
+    coderay (1.1.0)
+    logger (1.2.8)
+    method_source (0.8.2)
+    osx-plist (1.0.3)
+    pry (0.10.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.3.0)
+      byebug (~> 8.0)
+      pry (~> 0.10)
+    slop (3.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  logger (~> 1.2)
+  osx-plist (~> 1.0)
+  pry-byebug (~> 3.3)
+
+BUNDLED WITH
+   1.10.6
