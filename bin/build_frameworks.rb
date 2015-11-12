@@ -2,7 +2,6 @@
 
 # Tested on Ruby 2.1.2
 
-require 'pry-byebug'
 require 'optparse'
 require 'logger'
 require_relative '../lib/alpr/package'
