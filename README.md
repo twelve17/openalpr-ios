@@ -12,10 +12,7 @@ Running the script will:
 ## Requirements
 
 - Mac OS X
-- Ruby 2.1.x and the following Gems (provided by bundler):
-  - [osx-plist](https://github.com/kballard/osx-plist)
-  - [logger](https://rubygems.org/gems/logger/)
-  - [pry-byebug](https://rubygems.org/gems/pry-byebug)
+- Ruby 2.1.x, bundler
 - Xcode and command line tools.  Tested with Xcode 7.1.
 - curl, tar, unzip, git (seems to be installed by default on OS X)
 
