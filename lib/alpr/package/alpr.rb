@@ -119,10 +119,6 @@ module Alpr::Package
       self.merge_libfiles(self.target_libs, self.thin_lib_dir(target, arch), self.target_merged_lib)
     end
 
-    def pre_build_setup
-      patch_cmakelists
-    end
-
     def post_build_setup
       install_resources
     end
@@ -171,18 +167,6 @@ module Alpr::Package
 
     def cmake_build_dir
       File.join(cmake_src_dir, 'build')
-    end
-
-    def patch_cmakelists
-      logger.info("patching CMakeLists")
-      common_args = "-d #{self.package_dir} -p1 -i #{CONFIG_DIR}/cmake/OpenALPR_CMakeLists.txt.patch"
-      output = `patch --silent --dry-run #{common_args}`
-      # file is not patched yet
-      if $?.success?
-        log_execute("patch #{common_args}")
-      else
-        logger.info("CMakeLists is already patched") # TODO: could be error too
-      end
     end
 
   end
