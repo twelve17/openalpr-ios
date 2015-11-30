@@ -27,6 +27,7 @@ As of this writing, the latest openalpr commit on the master branch was `eecd41e
   ```
 
 - Install dependencies: `bundle install`
+- If running Homebrew, unlink existing installs of leptonica and tesseract, as the OpenALPR library will use those instead, which we don't want: `brew unlink leptonica tesseract`.  You can run `brew link` to re-link them after the install is done.
 - Run `bundle exec ./bin/build_frameworks.rb`.  By default, it will put all the frameworks under a subdirectory called `output`.  You can  pass an alternate path with the `-d` option.  Intermediate files are kept under the `work` subdirectory, including a log called `build.log` which you can inspect for errors.
 
 ## Usage 
