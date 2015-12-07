@@ -15,6 +15,7 @@ Running the script will:
 - Ruby 2.1.x, bundler
 - Xcode and command line tools.  Tested with Xcode 7.1.
 - curl, tar, unzip, git (seems to be installed by default on OS X)
+- cmake (links: <a href="http://brewformulas.org/Cmake" target="_blank">homebrew</a> | <a href="https://cmake.org/install/" target="_blank">source</a>)
 
 As of this writing, the latest openalpr commit on the master branch was `eecd41e097534f84e2669da24d4aed4bf75a1132`
 
