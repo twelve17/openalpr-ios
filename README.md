@@ -12,10 +12,11 @@ Running the script will:
 ## Requirements
 
 - Mac OS X
-- Ruby 2.1.x, bundler
+- Ruby *2.1*.x, bundler
 - Xcode and command line tools.  Tested with Xcode 7.1.
 - curl, tar, unzip, git (seems to be installed by default on OS X)
-- cmake (links: <a href="http://brewformulas.org/Cmake" target="_blank">homebrew</a> | <a href="https://cmake.org/install/" target="_blank">source</a>)
+- cmake (<a href="http://brewformulas.org/Cmake" target="_blank">homebrew</a> | <a href="https://cmake.org/install/" target="_blank">source</a>)
+- autoconf (<a href="http://brewformulas.org/autoconf" target="_blank">homebrew</a> | <a href="http://www.gnu.org/software/autoconf/autoconf.html" target="_blank">source</a>) 
 
 As of this writing, the latest openalpr commit on the master branch was `eecd41e097534f84e2669da24d4aed4bf75a1132`
 
