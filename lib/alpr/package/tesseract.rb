@@ -87,12 +87,15 @@ module Alpr::Package
       File.join(self.leptonica_thin_lib_dir, "#{target}-#{arch}")
     end
 
-    # Attempting to use the tesseract "LIBLEPT_HEADERSDIR"
+    def env_for_arch(target, arch, headers_dir, lib_dir)
+      super.merge('LIBLEPT_HEADERSDIR' => self.leptonica_headers_dir)
+    end
+
+    # Attempting to only use the tesseract "LIBLEPT_HEADERSDIR"
     # was causing the tesseract build fail, as it was setting the
     # -I flag to $LIBLEPT_HEADERSDIR/leptonica, which is incorrect
     # (the sources reference lept headers relative to $LIBLEPT_HEADERSDIR)
-    # It seems that just explicitly including the leptonica headers
-    # via the -I flag does the trick.
+    # Looks like also including the headers via the -I flag does the trick.
     def extra_headers_dir
       self.leptonica_headers_dir
     end

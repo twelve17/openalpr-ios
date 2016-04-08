@@ -2,7 +2,29 @@
 
 # Tested on Ruby 2.1.2
 
-require 'pry-byebug'
+#-----------------------------------------------------------------------------
+# Check ruby version before requiring alpr libs, which use 2.1.x named params.
+#-----------------------------------------------------------------------------
+def ruby_version_new_enough?
+  ruby_v = RUBY_VERSION.split('.').map(&:to_i)
+  ruby_v[0] >= 2 && ruby_v[1] >= 1
+end
+
+def check_deps
+  if !ruby_version_new_enough?
+    raise "Ruby 2.1.x or later is required.  You have: #{RUBY_VERSION}."
+  end
+  %w{cmake autoconf}.each do |prog|
+    `which -s #{prog}`
+    unless $?.success?
+      raise "Dependency '#{prog}' is missing.  Please install it and try again.  See the README.md for details."
+    end
+  end
+end
+
+check_deps
+#-----------------------------------------------------------------------------
+
 require 'optparse'
 require 'logger'
 require_relative '../lib/alpr/package'
